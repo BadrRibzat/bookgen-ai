@@ -1,0 +1,201 @@
+version: '3.9'
+
+services:
+  # ============================================
+  # MongoDB Database
+  # ============================================
+  mongodb:
+    image: mongo:7.0
+    container_name: bookgen_mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: bookgen_admin
+      MONGO_INITDB_ROOT_PASSWORD: bookgen_password
+      MONGO_INITDB_DATABASE: bookgen
+    volumes:
+      - mongodb_data:/data/db
+      - mongodb_config:/data/configdb
+    networks:
+      - bookgen_network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================
+  # Redis Cache & Message Broker
+  # ============================================
+  redis:
+    image: redis:7.2-alpine
+    container_name: bookgen_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --requirepass bookgen_redis_password
+    volumes:
+      - redis_data:/data
+    networks:
+      - bookgen_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================
+  # Django Backend API
+  # ============================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: bookgen_backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env
+    environment:
+      - DEBUG=True
+      - DATABASE_URL=mongodb://bookgen_admin:bookgen_password@mongodb:27017/bookgen?authSource=admin
+      - REDIS_URL=redis://:bookgen_redis_password@redis:6379/0
+      - CELERY_BROKER_URL=redis://:bookgen_redis_password@redis:6379/0
+    volumes:
+      - ./backend:/app
+      - backend_static:/app/staticfiles
+      - backend_media:/app/media
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - bookgen_network
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py collectstatic --noinput &&
+             python manage.py runserver 0.0.0.0:8000"
+
+  # ============================================
+  # Celery Worker (Async Task Processing)
+  # ============================================
+  celery_worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: bookgen_celery_worker
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    environment:
+      - DATABASE_URL=mongodb://bookgen_admin:bookgen_password@mongodb:27017/bookgen?authSource=admin
+      - REDIS_URL=redis://:bookgen_redis_password@redis:6379/0
+      - CELERY_BROKER_URL=redis://:bookgen_redis_password@redis:6379/0
+    volumes:
+      - ./backend:/app
+      - backend_media:/app/media
+    depends_on:
+      - redis
+      - mongodb
+      - backend
+    networks:
+      - bookgen_network
+    command: celery -A config worker --loglevel=info --concurrency=4
+
+  # ============================================
+  # Celery Beat (Scheduled Tasks)
+  # ============================================
+  celery_beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: bookgen_celery_beat
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    environment:
+      - DATABASE_URL=mongodb://bookgen_admin:bookgen_password@mongodb:27017/bookgen?authSource=admin
+      - REDIS_URL=redis://:bookgen_redis_password@redis:6379/0
+      - CELERY_BROKER_URL=redis://:bookgen_redis_password@redis:6379/0
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - redis
+      - mongodb
+      - backend
+    networks:
+      - bookgen_network
+    command: celery -A config beat --loglevel=info
+
+  # ============================================
+  # FastAPI LLM Service
+  # ============================================
+  llm_service:
+    build:
+      context: ./llm-service
+      dockerfile: Dockerfile
+    container_name: bookgen_llm_service
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+    env_file:
+      - ./llm-service/.env
+    volumes:
+      - ./llm-service:/app
+      - llm_data:/app/data
+    networks:
+      - bookgen_network
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload
+
+  # ============================================
+  # Next.js Frontend
+  # ============================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: bookgen_frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./frontend/.env.local
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+      - NEXT_PUBLIC_APP_URL=http://localhost:3000
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      - backend
+    networks:
+      - bookgen_network
+    command: npm run dev
+
+# ============================================
+# Named Volumes for Data Persistence
+# ============================================
+volumes:
+  mongodb_data:
+    driver: local
+  mongodb_config:
+    driver: local
+  redis_data:
+    driver: local
+  backend_static:
+    driver: local
+  backend_media:
+    driver: local
+  llm_data:
+    driver: local
+
+# ============================================
+# Network Configuration
+# ============================================
+networks:
+  bookgen_network:
+    driver: bridge
