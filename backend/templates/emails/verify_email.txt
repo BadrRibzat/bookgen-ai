@@ -1,0 +1,17 @@
+Hello {{ user.get_short_name }},
+
+Thank you for registering with BookGen-AI!
+
+Please verify your email address by clicking the link below:
+
+{{ verification_url }}
+
+This link will expire in {{ expiry_hours }} hours.
+
+If you didn't create an account with BookGen-AI, please ignore this email.
+
+Best regards,
+The BookGen-AI Team
+
+---
+This is an automated email. Please do not reply to this message.

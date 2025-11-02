@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="BookGen-AI logo">
+  <defs>
+    <linearGradient id="lg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#7C3AED"/>
+      <stop offset="50%" stop-color="#A78BFA"/>
+      <stop offset="100%" stop-color="#06B6D4"/>
+    </linearGradient>
+  </defs>
+  <!-- simplified, colorful mark: open book with stylized brain/circuit -->
+  <rect width="256" height="256" rx="32" fill="none" />
+  <g transform="translate(16,40)">
+    <!-- book pages -->
+    <path d="M8 144 C48 96 80 96 128 144 C176 96 208 96 248 144 L248 168 C208 192 176 192 128 160 C80 192 48 192 8 168 Z" fill="url(#lg)" opacity="0.95"/>
+    <!-- left page shadow -->
+    <path d="M8 144 C48 104 88 104 128 144 L128 160 C80 192 48 192 8 168 Z" fill="#3b0764" opacity="0.12"/>
+    <!-- stylized brain / circuit above book -->
+    <g transform="translate(72,-10)">
+      <circle cx="56" cy="24" r="28" fill="url(#lg)" opacity="0.98"/>
+      <path d="M44 24 L34 14 M68 24 L78 14 M56 12 L56 0" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="34" cy="14" r="3" fill="#ffffff"/>
+      <circle cx="78" cy="14" r="3" fill="#ffffff"/>
+    </g>
+  </g>
+</svg>

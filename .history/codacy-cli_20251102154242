@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# Lightweight wrapper so developers can run the repo-local Codacy CLI
+# Usage: ./codacy-cli <args...>
+
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CLI_SH="$ROOT_DIR/.codacy/cli.sh"
+
+if [ ! -f "$CLI_SH" ]; then
+  echo "Error: $CLI_SH not found. Make sure you're in the project root and the .codacy folder exists."
+  exit 2
+fi
+
+exec "$CLI_SH" "$@"

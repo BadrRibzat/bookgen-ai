@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 from datetime import timedelta
 from decouple import config
+from pymongo import MongoClient
 
 # Build paths inside the project
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -76,17 +77,34 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 # ============================================
-# Database
+# Database Configuration
 # ============================================
+# Use SQLite for Django's built-in models (User, Auth, Sessions)
 DATABASES = {
     'default': {
-        'ENGINE': 'djongo',
-        'NAME': 'bookgen',
-        'CLIENT': {
-            'host': config('DATABASE_URL', default='mongodb://localhost:27017/bookgen'),
-        }
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+# MongoDB Connection via PyMongo (for custom data)
+MONGODB_URI = config('DATABASE_URL', default='mongodb://localhost:27017/bookgen')
+MONGODB_NAME = 'bookgen'
+
+# Initialize MongoDB client
+try:
+    mongodb_client = MongoClient(MONGODB_URI, serverSelectionTimeoutMS=5000)
+    # Test connection
+    mongodb_client.server_info()
+    mongodb_db = mongodb_client[MONGODB_NAME]
+    print(f"✓ Connected to MongoDB: {MONGODB_NAME}")
+except Exception as e:
+    print(f"✗ MongoDB connection failed: {e}")
+    mongodb_db = None
+
+# Make MongoDB accessible throughout the project
+MONGODB_CLIENT = mongodb_client
+MONGODB_DATABASE = mongodb_db
 
 # ============================================
 # Custom User Model

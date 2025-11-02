@@ -106,7 +106,7 @@ if [ ! -d "venv" ]; then
     print_success "Created Python virtual environment"
 fi
 
-source venv/bin/activate
+cd backend && source venv/bin/activate
 pip install --upgrade pip
 pip install -r requirements.txt
 print_success "Backend dependencies installed"
@@ -118,7 +118,7 @@ cd ..
 # ============================================
 print_status "Installing frontend dependencies..."
 
-cd frontend
+cd ../frontend
 npm install
 print_success "Frontend dependencies installed"
 cd ..

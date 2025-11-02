@@ -217,6 +217,7 @@ class UserAnalytics(models.Model):
     """
     Detailed analytics tracking for user actions.
     Real-time event tracking with metadata.
+    Stored in SQLite for fast querying.
     """
     
     EVENT_TYPES = [
@@ -270,6 +271,10 @@ class UserAnalytics(models.Model):
             metadata=metadata or {},
             duration_seconds=duration
         )
+
+
+# Note: Books, Domains, Niches data will be stored in MongoDB via PyMongo
+# See apps/core/mongodb.py for MongoDB operations
 
 
 # Signal to create UserProfile automatically
