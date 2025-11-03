@@ -146,7 +146,7 @@ Plain text content for training...
 
 #### 2. **Set MongoDB Connection**
 ```bash
-export MONGODB_URL="mongodb+srv://username:password@cluster.mongodb.net/bookgen_ai"
+export MONGODB_URL="mongodb+srv://<username>:<password>@<cluster>.mongodb.net/<database>"
 ```
 
 #### 3. **Import Training Data**
@@ -185,10 +185,10 @@ pip install -r requirements.txt
 #### 2. **Configure MongoDB Atlas**
 ```bash
 # Set your MongoDB Atlas connection string
-export MONGODB_URL="mongodb+srv://username:password@cluster.mongodb.net/bookgen_ai"
+export MONGODB_URL="mongodb+srv://<username>:<password>@<cluster>.mongodb.net/<database>"
 
 # Or create .env file
-echo "MONGODB_URL=mongodb+srv://username:password@cluster.mongodb.net/bookgen_ai" > .env
+echo "MONGODB_URL=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/<database>" > .env
 ```
 
 #### 3. **Test Manual Import**

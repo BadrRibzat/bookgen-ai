@@ -113,9 +113,9 @@ async def demo_manual_import():
     print("\n🔧 MongoDB Configuration")
     print("To use this with your MongoDB Atlas:")
     print("1. Set your MONGODB_URL environment variable:")
-    print("   export MONGODB_URL='mongodb+srv://username:password@cluster.mongodb.net/bookgen_ai'")
+    print("   export MONGODB_URL='mongodb+srv://<username>:<password>@<cluster>.mongodb.net/<database>'")
     print("2. Or create a .env file with:")
-    print("   MONGODB_URL=mongodb+srv://username:password@cluster.mongodb.net/bookgen_ai")
+    print("   MONGODB_URL=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/<database>")
     
     # Check if MongoDB URL is available
     mongodb_url = os.getenv('MONGODB_URL')
