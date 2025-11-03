@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 400">
+  <defs>
+    <!-- Gradients for the futuristic, professional look -->
+    <linearGradient id="bookGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#4a339a;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#954dcd;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#4a339a;stop-opacity:1" />
+    </linearGradient>
+
+    <linearGradient id="brainGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#00b8e6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#00e699;stop-opacity:1" />
+    </linearGradient>
+
+    <mask id="circuitMask">
+        <rect x="0" y="0" width="500" height="400" fill="white"/>
+        <!-- Cutout for the brain center -->
+        <circle cx="250" cy="180" r="50" fill="black"/>
+    </mask>
+  </defs>
+
+  <!-- Base container - 500x400 to maintain aspect ratio -->
+
+  <!-- Book Pages (Open V-shape) -->
+  <path fill="url(#bookGradient)" d="M 50 350 C 150 250, 350 250, 450 350 L 450 370 C 350 270, 150 270, 50 370 Z"/>
+
+  <!-- Book Spine Lines (detail) -->
+  <path fill="none" stroke="#2c235c" stroke-width="5" opacity="0.5" d="M 120 350 L 250 270 L 380 350"/>
+  <path fill="none" stroke="#2c235c" stroke-width="5" opacity="0.5" d="M 100 360 L 250 270 L 400 360"/>
+
+  <!-- AI Brain Core (Center) -->
+  <g transform="translate(250, 150)">
+    <path fill="url(#brainGradient)" d="M -30 30 C -25 10, -10 0, 0 0 C 10 0, 25 10, 30 30 C 20 50, 10 55, 0 55 C -10 55, -20 50, -30 30 Z" opacity="0.9"/>
+    <!-- Central Neuron (glowing) -->
+    <circle cx="0" cy="30" r="8" fill="#FFFFFF" opacity="0.8"/>
+  </g>
+
+
+  <!-- Circuitry/Data Flow (Above the book) -->
+  <g mask="url(#circuitMask)">
+    <g stroke="url(#brainGradient)" stroke-width="3" fill="none" stroke-linecap="round">
+        <!-- Main flowing lines -->
+        <path d="M 250 0 L 250 150"/>
+        <path d="M 250 0 C 350 50, 300 100, 300 150"/>
+        <path d="M 250 0 C 150 50, 200 100, 200 150"/>
+
+        <!-- Abstract Data Wires Right -->
+        <path d="M 300 150 L 300 220 C 350 250, 400 250, 400 350" stroke-dasharray="15 5"/>
+        <path d="M 330 140 L 330 200 C 380 230, 420 230, 420 340" stroke-dasharray="10 5"/>
+
+        <!-- Abstract Data Wires Left -->
+        <path d="M 200 150 L 200 220 C 150 250, 100 250, 100 350" stroke-dasharray="15 5"/>
+        <path d="M 170 140 L 170 200 C 120 230, 80 230, 80 340" stroke-dasharray="10 5"/>
+
+        <!-- Dots/Nodes -->
+        <circle cx="400" cy="350" r="5" fill="url(#brainGradient)" stroke="none"/>
+        <circle cx="100" cy="350" r="5" fill="url(#brainGradient)" stroke="none"/>
+        <circle cx="250" cy="150" r="5" fill="url(#brainGradient)" stroke="none"/>
+        <circle cx="300" cy="150" r="5" fill="url(#brainGradient)" stroke="none"/>
+        <circle cx="200" cy="150" r="5" fill="url(#brainGradient)" stroke="none"/>
+
+    </g>
+  </g>
+</svg>

@@ -1,23 +1,44 @@
 /**
- * Dashboard page
+ * Dashboard page with domains integration
  */
 
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/contexts/AuthContext';
 import { Button } from '@/components/ui/Button';
+import { DomainsGrid } from '@/components/domains/DomainsGrid';
+import { DomainDetails } from '@/components/domains/DomainDetails';
+import { Modal } from '@/components/ui/Modal';
+import { Domain } from '@/shared/types';
 
 export default function DashboardPage() {
   const { user, loading, isAuthenticated, logout } = useAuth();
   const router = useRouter();
+  const [selectedDomain, setSelectedDomain] = useState<Domain | null>(null);
+  const [showDomainDetails, setShowDomainDetails] = useState(false);
+  const [detailsDomainId, setDetailsDomainId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
       router.push('/auth/login');
     }
   }, [loading, isAuthenticated, router]);
+
+  const handleDomainSelect = (domain: Domain) => {
+    setSelectedDomain(domain);
+  };
+
+  const handleViewDetails = (domain: Domain) => {
+    setDetailsDomainId(domain.id);
+    setShowDomainDetails(true);
+  };
+
+  const handleCloseDetails = () => {
+    setShowDomainDetails(false);
+    setDetailsDomainId(null);
+  };
 
   if (loading) {
     return (
@@ -36,8 +57,13 @@ export default function DashboardPage() {
       <nav className="bg-white shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-primary-600">📚 BookGen-AI</h1>
+            <div className="flex items-center space-x-3">
+              <img 
+                src="/logo-icon.svg" 
+                alt="BookGen-AI Logo" 
+                className="h-8 w-8 text-primary-600"
+              />
+              <h1 className="text-2xl font-bold text-primary-600">BookGen-AI</h1>
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-gray-700">{user.email}</span>
@@ -49,13 +75,14 @@ export default function DashboardPage() {
         </div>
       </nav>
 
-      <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8 space-y-12">
+        {/* Welcome Section */}
         <div className="bg-white rounded-lg shadow p-8">
           <h2 className="text-3xl font-bold text-gray-900 mb-4">
             Welcome, {user.full_name || user.email}! 🎉
           </h2>
           <p className="text-gray-600 mb-6">
-            Your account has been successfully created. Dashboard features coming soon!
+            Your AI-powered book generation platform is ready. Choose a domain below to start creating!
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -95,7 +122,58 @@ export default function DashboardPage() {
             </div>
           )}
         </div>
+
+        {/* Domains Section */}
+        <div className="bg-white rounded-lg shadow p-8">
+          <DomainsGrid 
+            onDomainSelect={handleDomainSelect}
+            onViewDetails={handleViewDetails}
+            selectedDomainId={selectedDomain?.id}
+            showOverview={true}
+          />
+          
+          {/* Quick Actions */}
+          {selectedDomain && (
+            <div className="mt-8 p-6 bg-primary-50 rounded-lg">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="text-2xl">{selectedDomain.icon}</div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-primary-900">
+                      Ready to create in {selectedDomain.name}?
+                    </h3>
+                    <p className="text-primary-700">
+                      {selectedDomain.description}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex space-x-3">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => handleViewDetails(selectedDomain)}
+                  >
+                    View Details
+                  </Button>
+                  <Button>
+                    Start Creating Book
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
+
+      {/* Domain Details Modal */}
+      <Modal isOpen={showDomainDetails} onClose={handleCloseDetails}>
+        {detailsDomainId && (
+          <DomainDetails
+            domainId={detailsDomainId}
+            onClose={handleCloseDetails}
+            isModal={true}
+          />
+        )}
+      </Modal>
     </div>
   );
 }

@@ -138,8 +138,14 @@ class LogoutView(APIView):
         try:
             refresh_token = request.data.get('refresh')
             if refresh_token:
-                token = RefreshToken(refresh_token)
-                token.blacklist()
+                try:
+                    token = RefreshToken(refresh_token)
+                    # Blacklist token if rest_framework_simplejwt.token_blacklist is installed
+                    if hasattr(token, 'blacklist'):
+                        token.blacklist()
+                except Exception as e:
+                    # Token blacklisting failed, but continue with logout
+                    logger.warning(f"Token blacklist failed: {str(e)}")
             
             # Track logout event
             UserService.track_user_event(request.user, 'session_end')

@@ -8,6 +8,8 @@ from pathlib import Path
 from datetime import timedelta
 from decouple import config
 from pymongo import MongoClient
+import pymongo
+from urllib.parse import quote_plus
 
 # Build paths inside the project
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -80,6 +82,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database Configuration
 # ============================================
 # Use SQLite for Django's built-in models (User, Auth, Sessions)
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -87,24 +90,32 @@ DATABASES = {
     }
 }
 
-# MongoDB Connection via PyMongo (for custom data)
-MONGODB_URI = config('DATABASE_URL', default='mongodb://localhost:27017/bookgen')
-MONGODB_NAME = 'bookgen'
+# ============================================
+# MongoDB Configuration
+# ============================================
+MONGODB_URL = config('DATABASE_URL')
+MONGODB_DB_NAME = config('MONGODB_DB_NAME', default='bookgen_ai')
 
-# Initialize MongoDB client
+# Initialize MongoDB connection
 try:
-    mongodb_client = MongoClient(MONGODB_URI, serverSelectionTimeoutMS=5000)
+    MONGODB_CLIENT = pymongo.MongoClient(
+        MONGODB_URL,
+        maxPoolSize=50,
+        connectTimeoutMS=30000,
+        socketTimeoutMS=30000,
+        retryWrites=True
+    )
+    # Explicitly specify database name
+    MONGODB_DATABASE = MONGODB_CLIENT[MONGODB_DB_NAME]
+    
     # Test connection
-    mongodb_client.server_info()
-    mongodb_db = mongodb_client[MONGODB_NAME]
-    print(f"✓ Connected to MongoDB: {MONGODB_NAME}")
+    MONGODB_CLIENT.admin.command('ping')
+    print(f"✅ MongoDB connected successfully to database: {MONGODB_DB_NAME}")
+    
 except Exception as e:
-    print(f"✗ MongoDB connection failed: {e}")
-    mongodb_db = None
-
-# Make MongoDB accessible throughout the project
-MONGODB_CLIENT = mongodb_client
-MONGODB_DATABASE = mongodb_db
+    print(f"❌ MongoDB connection failed: {e}")
+    MONGODB_CLIENT = None
+    MONGODB_DATABASE = None
 
 # ============================================
 # Custom User Model

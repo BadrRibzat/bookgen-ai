@@ -1,100 +1,147 @@
 """
-MongoDB utility functions
-Provides easy access to MongoDB collections and common operations
+Enhanced MongoDB utility functions with better error handling and connection management
 """
 
 from django.conf import settings
-from pymongo.errors import ConnectionFailure, OperationFailure
-from bson.objectid import ObjectId
+from pymongo import MongoClient, ASCENDING, DESCENDING
+from pymongo.errors import ConnectionFailure, OperationFailure, DuplicateKeyError
+from bson import ObjectId
+from bson.errors import InvalidId
 from datetime import datetime
 import logging
 
 logger = logging.getLogger(__name__)
 
-
-def get_mongodb_database():
-    """Get MongoDB database instance"""
-    if settings.MONGODB_DATABASE is None:
-        raise ConnectionFailure("MongoDB is not connected")
-    return settings.MONGODB_DATABASE
-
-
-def get_collection(collection_name):
-    """
-    Get a MongoDB collection by name
-    
-    Args:
-        collection_name (str): Name of the collection
-    
-    Returns:
-        Collection: PyMongo collection object
-    """
-    db = get_mongodb_database()
-    return db[collection_name]
-
-
-# ============================================
-# Collection Names (Constants)
-# ============================================
+# Collection Names
 COLLECTIONS = {
     'DOMAINS': 'domains',
-    'NICHES': 'niches',
+    'NICHES': 'niches', 
     'AUDIENCES': 'audiences',
     'BOOKS': 'books',
-    'BOOK_CHAPTERS': 'book_chapters',
+    'BOOK_GENERATION_JOBS': 'book_generation_jobs',
     'USER_ANALYTICS': 'user_analytics',
 }
 
+class MongoDBConnection:
+    """Singleton MongoDB connection manager"""
+    
+    _client = None
+    _db = None
+    
+    @classmethod
+    def get_client(cls):
+        if cls._client is None:
+            try:
+                # Use the connection from settings
+                if settings.MONGODB_CLIENT:
+                    cls._client = settings.MONGODB_CLIENT
+                    logger.info("✅ Using MongoDB connection from settings")
+                else:
+                    logger.error("❌ MongoDB client not available in settings")
+                    return None
+            except Exception as e:
+                logger.error(f"❌ MongoDB connection failed: {e}")
+                return None
+        return cls._client
+    
+    @classmethod
+    def get_database(cls):
+        if cls._db is None:
+            client = cls.get_client()
+            if client:
+                cls._db = settings.MONGODB_DATABASE
+            else:
+                logger.error("❌ Cannot get database - no MongoDB client")
+        return cls._db
+    
+    @classmethod
+    def close_connection(cls):
+        # Don't close the connection as it's managed by settings
+        pass
 
-# ============================================
-# Common MongoDB Operations
-# ============================================
+def get_database():
+    """Get database instance"""
+    return MongoDBConnection.get_database()
 
+def get_collection(collection_name):
+    """Get collection with validation"""
+    if collection_name not in COLLECTIONS.values():
+        raise ValueError(f"Invalid collection name: {collection_name}")
+    
+    db = get_database()
+    if db is None:
+        raise ConnectionError("MongoDB database is not available")
+    
+    return db[collection_name]
+
+# Enhanced CRUD Operations with proper error handling
 def insert_one(collection_name, document):
-    """Insert a single document"""
+    """Insert a single document with enhanced error handling"""
     try:
         collection = get_collection(collection_name)
         document['created_at'] = datetime.utcnow()
         document['updated_at'] = datetime.utcnow()
         result = collection.insert_one(document)
+        logger.debug(f"Inserted document into {collection_name}: {result.inserted_id}")
         return str(result.inserted_id)
+    except DuplicateKeyError as e:
+        logger.error(f"Duplicate key error in {collection_name}: {e}")
+        raise
     except Exception as e:
-        logger.error(f"Error inserting document: {e}")
+        logger.error(f"Error inserting into {collection_name}: {e}")
         raise
 
-
 def insert_many(collection_name, documents):
-    """Insert multiple documents"""
+    """Insert multiple documents with batch processing"""
     try:
         collection = get_collection(collection_name)
         now = datetime.utcnow()
         for doc in documents:
             doc['created_at'] = now
             doc['updated_at'] = now
-        result = collection.insert_many(documents)
+        
+        result = collection.insert_many(documents, ordered=False)
+        logger.info(f"Inserted {len(result.inserted_ids)} documents into {collection_name}")
         return [str(id) for id in result.inserted_ids]
     except Exception as e:
-        logger.error(f"Error inserting documents: {e}")
+        logger.error(f"Error bulk inserting into {collection_name}: {e}")
         raise
 
-
 def find_one(collection_name, query, projection=None):
-    """Find a single document"""
+    """Find single document with ID conversion"""
     try:
         collection = get_collection(collection_name)
+        
+        # Convert string IDs to ObjectId if needed
+        if '_id' in query and isinstance(query['_id'], str):
+            try:
+                query['_id'] = ObjectId(query['_id'])
+            except InvalidId:
+                return None
+        
         document = collection.find_one(query, projection)
         if document and '_id' in document:
             document['_id'] = str(document['_id'])
         return document
     except Exception as e:
-        logger.error(f"Error finding document: {e}")
-        raise
+        logger.error(f"Error finding document in {collection_name}: {e}")
+        return None
 
-
-def find_many(collection_name, query, projection=None, limit=None, skip=None, sort=None):
-    """Find multiple documents"""
+def find_many(collection_name, query=None, projection=None, limit=0, skip=0, sort=None):
+    """Find multiple documents with pagination support"""
     try:
         collection = get_collection(collection_name)
+        
+        if query is None:
+            query = {}
+        
+        # Handle ID conversion in query
+        if '_id' in query and isinstance(query['_id'], str):
+            try:
+                query['_id'] = ObjectId(query['_id'])
+            except InvalidId:
+                return []
+        
         cursor = collection.find(query, projection)
         
         if sort:
@@ -108,171 +155,119 @@ def find_many(collection_name, query, projection=None, limit=None, skip=None, so
         for doc in documents:
             if '_id' in doc:
                 doc['_id'] = str(doc['_id'])
+        
         return documents
     except Exception as e:
-        logger.error(f"Error finding documents: {e}")
-        raise
+        logger.error(f"Error finding documents in {collection_name}: {e}")
+        return []
 
-
-def update_one(collection_name, query, update, upsert=False):
-    """Update a single document"""
+def update_one(collection_name, query, update_data, upsert=False):
+    """Update single document with timestamp"""
     try:
         collection = get_collection(collection_name)
-        if '$set' in update:
-            update['$set']['updated_at'] = datetime.utcnow()
-        else:
-            update = {'$set': {**update, 'updated_at': datetime.utcnow()}}
         
-        result = collection.update_one(query, update, upsert=upsert)
+        # Convert string ID to ObjectId if needed
+        if '_id' in query and isinstance(query['_id'], str):
+            try:
+                query['_id'] = ObjectId(query['_id'])
+            except InvalidId:
+                return 0
+        
+        # Ensure updated_at is set
+        if '$set' in update_data:
+            update_data['$set']['updated_at'] = datetime.utcnow()
+        else:
+            update_data = {'$set': {**update_data, 'updated_at': datetime.utcnow()}}
+        
+        result = collection.update_one(query, update_data, upsert=upsert)
         return result.modified_count
     except Exception as e:
-        logger.error(f"Error updating document: {e}")
-        raise
-
-
-def update_many(collection_name, query, update):
-    """Update multiple documents"""
-    try:
-        collection = get_collection(collection_name)
-        if '$set' in update:
-            update['$set']['updated_at'] = datetime.utcnow()
-        else:
-            update = {'$set': {**update, 'updated_at': datetime.utcnow()}}
-        
-        result = collection.update_many(query, update)
-        return result.modified_count
-    except Exception as e:
-        logger.error(f"Error updating documents: {e}")
-        raise
-
+        logger.error(f"Error updating document in {collection_name}: {e}")
+        return 0
 
 def delete_one(collection_name, query):
-    """Delete a single document"""
+    """Delete single document"""
     try:
         collection = get_collection(collection_name)
+        
+        if '_id' in query and isinstance(query['_id'], str):
+            try:
+                query['_id'] = ObjectId(query['_id'])
+            except InvalidId:
+                return 0
+        
         result = collection.delete_one(query)
         return result.deleted_count
     except Exception as e:
-        logger.error(f"Error deleting document: {e}")
-        raise
+        logger.error(f"Error deleting document from {collection_name}: {e}")
+        return 0
 
-
-def delete_many(collection_name, query):
-    """Delete multiple documents"""
-    try:
-        collection = get_collection(collection_name)
-        result = collection.delete_many(query)
-        return result.deleted_count
-    except Exception as e:
-        logger.error(f"Error deleting documents: {e}")
-        raise
-
-
-def count_documents(collection_name, query):
+def count_documents(collection_name, query=None):
     """Count documents matching query"""
     try:
         collection = get_collection(collection_name)
+        if query is None:
+            query = {}
         return collection.count_documents(query)
     except Exception as e:
-        logger.error(f"Error counting documents: {e}")
-        raise
-
+        logger.error(f"Error counting documents in {collection_name}: {e}")
+        return 0
 
 def aggregate(collection_name, pipeline):
     """Run aggregation pipeline"""
     try:
         collection = get_collection(collection_name)
         result = list(collection.aggregate(pipeline))
+        
+        # Convert ObjectIds to strings
         for doc in result:
             if '_id' in doc and isinstance(doc['_id'], ObjectId):
                 doc['_id'] = str(doc['_id'])
+        
         return result
     except Exception as e:
-        logger.error(f"Error in aggregation: {e}")
-        raise
+        logger.error(f"Error in aggregation pipeline for {collection_name}: {e}")
+        return []
 
-
-# ============================================
-# Helper Functions
-# ============================================
-
+# Helper functions
 def to_object_id(id_string):
-    """Convert string to ObjectId"""
+    """Safely convert string to ObjectId"""
     try:
-        return ObjectId(id_string)
-    except Exception:
+        return ObjectId(id_string) if id_string else None
+    except (InvalidId, TypeError):
         return None
-
 
 def is_valid_object_id(id_string):
     """Check if string is valid ObjectId"""
     try:
         ObjectId(id_string)
         return True
-    except Exception:
+    except (InvalidId, TypeError):
         return False
 
-
-def create_indexes(collection_name, indexes):
-    """
-    Create indexes on collection
-    
-    Args:
-        collection_name (str): Collection name
-        indexes (list): List of tuples (field, direction)
-    """
+# Index Management
+def create_indexes():
+    """Create necessary indexes for optimal performance"""
     try:
-        collection = get_collection(collection_name)
-        collection.create_index(indexes)
-        logger.info(f"Created indexes on {collection_name}: {indexes}")
+        # Domain indexes
+        get_collection('domains').create_index([('name', ASCENDING)], unique=True)
+        get_collection('domains').create_index([('subscription_tiers', ASCENDING)])
+        get_collection('domains').create_index([('is_active', ASCENDING)])
+        
+        # Niche indexes
+        get_collection('niches').create_index([('domain_id', ASCENDING), ('name', ASCENDING)], unique=True)
+        get_collection('niches').create_index([('is_active', ASCENDING)])
+        
+        # Audience indexes  
+        get_collection('audiences').create_index([('domain_id', ASCENDING), ('name', ASCENDING)], unique=True)
+        get_collection('audiences').create_index([('is_active', ASCENDING)])
+        
+        logger.info("✅ MongoDB indexes created successfully")
     except Exception as e:
         logger.error(f"Error creating indexes: {e}")
-        raise
 
-
-# ============================================
-# Initialize Collections & Indexes
-# ============================================
-
-def initialize_mongodb_collections():
-    """Create indexes for all collections"""
-    try:
-        # Domains
-        create_indexes(COLLECTIONS['DOMAINS'], [('name', 1)])
-        
-        # Niches
-        create_indexes(COLLECTIONS['NICHES'], [
-            ('domain_id', 1),
-            ('name', 1)
-        ])
-        
-        # Audiences
-        create_indexes(COLLECTIONS['AUDIENCES'], [
-            ('domain_id', 1),
-            ('name', 1)
-        ])
-        
-        # Books
-        create_indexes(COLLECTIONS['BOOKS'], [
-            ('user_id', 1),
-            ('status', 1),
-            ('created_at', -1)
-        ])
-        
-        # User Analytics
-        create_indexes(COLLECTIONS['USER_ANALYTICS'], [
-            ('user_id', 1),
-            ('created_at', -1)
-        ])
-        
-        logger.info("MongoDB collections initialized successfully")
-    except Exception as e:
-        logger.error(f"Error initializing MongoDB collections: {e}")
-
-
-# Call initialization when module is imported
-if settings.MONGODB_DATABASE:
-    try:
-        initialize_mongodb_collections()
-    except Exception as e:
-        logger.warning(f"Could not initialize MongoDB collections: {e}")
+# Initialize indexes when module loads
+try:
+    create_indexes()
+except Exception as e:
+    logger.warning(f"Could not create indexes on startup: {e}")

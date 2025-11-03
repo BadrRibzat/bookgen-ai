@@ -12,9 +12,14 @@ export default function HomePage() {
       <nav className="bg-white/80 backdrop-blur-sm shadow-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
-            <div className="flex items-center">
+            <div className="flex items-center space-x-3">
+              <img 
+                src="/logo-icon.svg" 
+                alt="BookGen-AI Logo" 
+                className="h-8 w-8 text-primary-600"
+              />
               <span className="text-2xl font-bold text-primary-600">
-                📚 BookGen-AI
+                BookGen-AI
               </span>
             </div>
             <div className="flex items-center space-x-4">

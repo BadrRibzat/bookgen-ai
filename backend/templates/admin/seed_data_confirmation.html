@@ -1,0 +1,57 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+<div id="content-main">
+    <h1>🌱 Seed Initial Data</h1>
+    
+    <div class="module">
+        <h2>Current Data Statistics</h2>
+        <table>
+            <tr>
+                <th>Data Type</th>
+                <th>Count</th>
+            </tr>
+            <tr>
+                <td>Domains</td>
+                <td>{{ current_stats.domains }}</td>
+            </tr>
+            <tr>
+                <td>Niches</td>
+                <td>{{ current_stats.niches }}</td>
+            </tr>
+            <tr>
+                <td>Audiences</td>
+                <td>{{ current_stats.audiences }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="module" style="margin-top: 20px;">
+        <h2>What will be seeded?</h2>
+        <ul>
+            <li>✅ 12 Domains (AI & ML, Automation, HealthTech, etc.)</li>
+            <li>✅ 70+ Niches (domain-specific subcategories)</li>
+            <li>✅ 60+ Audiences (domain-specific target readers)</li>
+            <li>✅ Subscription tier mapping</li>
+            <li>✅ Proper domain-niche-audience relationships</li>
+        </ul>
+    </div>
+
+    <form method="post" id="seed-form">
+        {% csrf_token %}
+        <div class="submit-row">
+            <input type="submit" value="🚀 Seed Data Now" class="default" name="seed">
+            <a href="{% url 'admin:app_list' app_label='core' %}" class="button">Cancel</a>
+        </div>
+    </form>
+
+    <script>
+        document.getElementById('seed-form').addEventListener('submit', function(e) {
+            if (!confirm('Are you sure you want to seed initial data? This will add new domains, niches, and audiences.')) {
+                e.preventDefault();
+            }
+        });
+    </script>
+</div>
+{% endblock %}

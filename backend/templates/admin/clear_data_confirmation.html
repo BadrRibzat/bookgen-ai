@@ -1,0 +1,58 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+<div id="content-main">
+    <h1>🗑️ Clear All Data</h1>
+    
+    <div class="module" style="background: #ffebee; border: 2px solid #f44336;">
+        <h2 style="color: #c62828;">⚠️ Warning: Destructive Action</h2>
+        <p><strong>{{ warning_message }}</strong></p>
+        <p>This action cannot be undone. Make sure you have backups if needed.</p>
+    </div>
+
+    <div class="module">
+        <h2>Current Data Statistics</h2>
+        <table>
+            <tr>
+                <th>Data Type</th>
+                <th>Count</th>
+            </tr>
+            <tr>
+                <td>Domains</td>
+                <td>{{ current_stats.domains }}</td>
+            </tr>
+            <tr>
+                <td>Niches</td>
+                <td>{{ current_stats.niches }}</td>
+            </tr>
+            <tr>
+                <td>Audiences</td>
+                <td>{{ current_stats.audiences }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <form method="post" id="clear-form">
+        {% csrf_token %}
+        <div class="submit-row">
+            <input type="submit" value="🔥 Clear All Data" style="background: #f44336;" name="clear">
+            <a href="{% url 'admin:app_list' app_label='core' %}" class="button">Cancel</a>
+        </div>
+    </form>
+
+    <script>
+        document.getElementById('clear-form').addEventListener('submit', function(e) {
+            const confirmation = confirm('🚨 DANGER: This will permanently delete ALL domains, niches, and audiences! This action cannot be undone. Are you absolutely sure?');
+            if (!confirmation) {
+                e.preventDefault();
+            } else {
+                const doubleCheck = confirm('⚠️ FINAL WARNING: This will delete all your data. Type "DELETE" to confirm:');
+                if (!doubleCheck) {
+                    e.preventDefault();
+                }
+            }
+        });
+    </script>
+</div>
+{% endblock %}

@@ -118,6 +118,58 @@ export interface PaginatedResponse<T> {
 }
 
 // ============================================
+// Domain, Niche & Audience Types
+// ============================================
+
+export interface Domain {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  is_active: boolean;
+  subscription_tiers: string[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Niche {
+  id: string;
+  name: string;
+  description: string;
+  domain_id: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Audience {
+  id: string;
+  name: string;
+  description: string;
+  domain_id: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DomainsResponse {
+  success: boolean;
+  domains: Domain[];
+}
+
+export interface DomainNichesResponse {
+  success: boolean;
+  niches: Niche[];
+  domain: Domain;
+}
+
+export interface DomainAudiencesResponse {
+  success: boolean;
+  audiences: Audience[];
+  domain: Domain;
+}
+
+// ============================================
 // Book Types (Placeholder for future)
 // ============================================
 
@@ -130,23 +182,6 @@ export interface Book {
   status: 'generating' | 'completed' | 'failed';
   created_at: string;
   updated_at: string;
-}
-
-export interface Domain {
-  id: string;
-  name: string;
-}
-
-export interface Niche {
-  id: string;
-  name: string;
-  domain_id: string;
-}
-
-export interface Audience {
-  id: string;
-  name: string;
-  domain_id: string;
 }
 
 // ============================================

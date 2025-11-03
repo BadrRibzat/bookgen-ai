@@ -149,7 +149,7 @@ def log_error(exc, context, status_code):
     
     log_data = {
         'exception': type(exc).__name__,
-        'message': str(exc),
+        'error_message': str(exc),
         'status_code': status_code,
         'path': request.path if request else None,
         'method': request.method if request else None,

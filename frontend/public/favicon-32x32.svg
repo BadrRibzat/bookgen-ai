@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <defs>
+    <linearGradient id="bookGrad32" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#4a339a" />
+      <stop offset="50%" style="stop-color:#954dcd" />
+      <stop offset="100%" style="stop-color:#4a339a" />
+    </linearGradient>
+    <linearGradient id="brainGrad32" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#00b8e6" />
+      <stop offset="100%" style="stop-color:#00e699" />
+    </linearGradient>
+  </defs>
+
+  <!-- Very simplified for 32x32 -->
+  <!-- Book shape -->
+  <path fill="url(#bookGrad32)" d="M 3 24 C 8 20, 24 20, 29 24 L 29 27 C 24 23, 8 23, 3 27 Z"/>
+  
+  <!-- Brain/AI core -->
+  <circle cx="16" cy="12" r="6" fill="url(#brainGrad32)"/>
+  <circle cx="16" cy="12" r="2" fill="#fff"/>
+  
+  <!-- Simple connections -->
+  <line x1="16" y1="2" x2="16" y2="12" stroke="url(#brainGrad32)" stroke-width="2"/>
+  <line x1="16" y1="18" x2="16" y2="24" stroke="url(#brainGrad32)" stroke-width="1" stroke-dasharray="2 1"/>
+</svg>
