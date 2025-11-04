@@ -383,8 +383,8 @@ EMAIL_HOST_PASSWORD=your-app-password
 
 ### LLM Service Environment (.env)
 ```bash
-# MongoDB Atlas (shared with backend)
-DATABASE_URL=mongodb+srv://badrribzat_db_user:7kVwsuJJMsP3EKF5@book-generator.yfcmxzd.mongodb.net/?retryWrites=true&w=majority&appName=book-generator
+# MongoDB Atlas (shared with backend) - DO NOT commit real credentials
+DATABASE_URL=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/?retryWrites=true&w=majority&appName=<app-name>
 MONGODB_DB_NAME=bookgen_ai
 
 # Training Configuration

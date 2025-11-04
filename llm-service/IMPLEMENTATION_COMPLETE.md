@@ -160,8 +160,8 @@ llm-service/
 The service is configured to use your existing MongoDB Atlas connection:
 
 ```bash
-# Uses same database as backend
-DATABASE_URL=mongodb+srv://badrribzat_db_user:7kVwsuJJMsP3EKF5@book-generator.yfcmxzd.mongodb.net/?retryWrites=true&w=majority&appName=book-generator
+# Uses same database as backend (NEVER commit real credentials)
+DATABASE_URL=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/?retryWrites=true&w=majority&appName=<app-name>
 MONGODB_DB_NAME=bookgen_ai
 
 # Training collections

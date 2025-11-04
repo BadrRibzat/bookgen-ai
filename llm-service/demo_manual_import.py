@@ -388,7 +388,7 @@ Examples:
     if not os.getenv("DATABASE_URL"):
         print("❌ DATABASE_URL environment variable is required")
         print("Set it in your .env file or export it:")
-        print("export DATABASE_URL='mongodb+srv://user:pass@cluster.mongodb.net/database'")
+        print("export DATABASE_URL='mongodb+srv://<username>:<password>@<cluster>.mongodb.net/<database>'")
         return
     
     # Execute commands

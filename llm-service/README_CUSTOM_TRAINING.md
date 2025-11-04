@@ -80,10 +80,12 @@ A comprehensive custom LLM training service for fine-tuning GPT-2 models on **ma
 The service uses the same MongoDB connection as the backend:
 
 ```bash
-# Already configured in .env file
-DATABASE_URL=mongodb+srv://badrribzat_db_user:7kVwsuJJMsP3EKF5@book-generator.yfcmxzd.mongodb.net/?retryWrites=true&w=majority&appName=book-generator
-MONGODB_DB_NAME=bookgen_ai
+# Configure in your .env file (DO NOT commit actual credentials)
+DATABASE_URL=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/?retryWrites=true&w=majority&appName=<app-name>
+MONGODB_DB_NAME=app_name
 ```
+
+> **⚠️ SECURITY NOTE**: Never commit actual MongoDB credentials to your repository. Always use environment variables and keep your `.env` file in `.gitignore`.
 
 ### 2. Install Dependencies
 
