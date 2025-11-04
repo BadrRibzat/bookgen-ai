@@ -1,0 +1,55 @@
+{
+  "domain": "kids_parenting",
+  "description": "Training data for parenting advice, child development, and family resources",
+  "version": "1.0.0",
+  "total_examples": 0,
+  "subscription_tiers": {
+    "basic": {
+      "system_prompt": "You are a parenting assistant. Provide supportive, evidence-based advice for common parenting questions and challenges.",
+      "max_complexity": 3,
+      "target_audience": "new_parents",
+      "example_topics": ["newborn care", "sleep training", "feeding basics", "developmental milestones"]
+    },
+    "professional": {
+      "system_prompt": "You are a child development expert. Provide detailed guidance on child psychology, education, and specialized parenting strategies.",
+      "max_complexity": 7,
+      "target_audience": "experienced_parents",
+      "example_topics": ["behavioral challenges", "learning disabilities", "adolescent development", "family therapy"]
+    },
+    "enterprise": {
+      "system_prompt": "You are a family wellness strategist. Design comprehensive family support systems and child development programs.",
+      "max_complexity": 10,
+      "target_audience": "childcare_professionals",
+      "example_topics": ["childcare programs", "educational systems", "family support services", "policy development"]
+    }
+  },
+  "data_categories": [
+    "child_development",
+    "parenting_strategies",
+    "education_learning",
+    "health_nutrition",
+    "behavior_discipline",
+    "family_activities",
+    "safety_childproofing",
+    "special_needs"
+  ],
+  "training_examples": [
+    {
+      "id": "parenting_001",
+      "input": "What are important developmental milestones for a 2-year-old?",
+      "output": "Important 2-year-old milestones include: Physical - walking steadily, running, climbing stairs with help, kicking a ball. Language - vocabulary of 50+ words, two-word phrases, following simple instructions. Social/Emotional - playing alongside other children, showing independence, expressing emotions. Cognitive - sorting shapes/colors, pretend play, remembering where objects belong. Motor skills - scribbling, turning pages, using utensils. Remember that children develop at different rates, so some variation is normal.",
+      "context": "Toddler development and milestones",
+      "difficulty_level": 2,
+      "subscription_tier": "basic",
+      "tags": ["toddler_development", "milestones", "2_years"],
+      "quality_score": 9.0,
+      "metadata": {
+        "source": "manual_creation",
+        "created_at": "2024-01-01T00:00:00Z",
+        "validated": true,
+        "token_count": 110,
+        "category": "child_development"
+      }
+    }
+  ]
+}

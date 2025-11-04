@@ -275,6 +275,46 @@ package-lock.json
 *.model
 *.onnx
 
+# ============================================
+# LLM Training Data (Large Files) 
+# ============================================
+# Training datasets (can be 1GB+)
+llm-service/data/training_sets/**/*.json
+llm-service/data/training_sets/**/*.csv
+llm-service/data/training_sets/**/*.txt
+llm-service/data/training_sets/**/*.jsonl
+
+# BUT keep directory structure and templates
+!llm-service/data/training_sets/*/
+!llm-service/data/training_sets/template.json
+!llm-service/data/training_sets/*/template.json
+!llm-service/data/training_sets/*/README.md
+
+# Trained model artifacts (large files)
+llm-service/models/**/*.bin
+llm-service/models/**/*.safetensors
+llm-service/models/**/*.pt
+llm-service/models/**/*.pth
+llm-service/models/**/*.ckpt
+
+# BUT keep model configs and metadata
+!llm-service/models/**/*.json
+!llm-service/models/**/config.json
+!llm-service/models/**/tokenizer.json
+!llm-service/models/**/README.md
+
+# Training outputs and logs
+llm-service/output/**
+llm-service/logs/**
+llm-service/temp/**
+llm-service/cache/**
+
+# BUT keep directory structure
+!llm-service/output/
+!llm-service/logs/
+!llm-service/temp/
+!llm-service/cache/
+
 # IDE-specific (expanding)
 *.sublime-*
 *.code-workspace

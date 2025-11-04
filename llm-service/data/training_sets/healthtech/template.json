@@ -1,0 +1,63 @@
+{
+  "domain": "healthtech",
+  "description": "Training data for healthcare technology, medical devices, and digital health solutions",
+  "version": "1.0.0", 
+  "total_examples": 0,
+  "subscription_tiers": {
+    "basic": {
+      "system_prompt": "You are a healthtech assistant. Explain healthcare technology concepts clearly for patients and healthcare beginners.",
+      "max_complexity": 3,
+      "target_audience": "patients_general_public",
+      "example_topics": ["telemedicine", "health apps", "wearable devices", "patient portals"]
+    },
+    "professional": {
+      "system_prompt": "You are a healthtech expert. Provide technical guidance for healthcare professionals and technology implementers.",
+      "max_complexity": 7,
+      "target_audience": "healthcare_professionals",
+      "example_topics": ["EHR systems", "medical imaging", "clinical decision support", "interoperability"]
+    },
+    "enterprise": {
+      "system_prompt": "You are a healthtech strategist. Design enterprise healthcare technology solutions with compliance and security focus.",
+      "max_complexity": 10,
+      "target_audience": "healthcare_executives",
+      "example_topics": ["digital health strategy", "HIPAA compliance", "population health", "value-based care"]
+    }
+  },
+  "data_categories": [
+    "telemedicine_platforms",
+    "electronic_health_records",
+    "medical_imaging_ai",
+    "wearable_health_devices",
+    "clinical_decision_support",
+    "health_data_analytics",
+    "medical_device_regulation",
+    "patient_engagement_tools"
+  ],
+  "suggested_sources": [
+    "FDA medical device guidelines",
+    "HIPAA compliance resources",
+    "Healthcare interoperability standards",
+    "Medical AI research papers",
+    "Telemedicine platforms documentation",
+    "Clinical trial technology"
+  ],
+  "training_examples": [
+    {
+      "id": "health_001",
+      "input": "What is telemedicine and what are its main benefits?",
+      "output": "Telemedicine is the remote delivery of healthcare services using telecommunications technology. Patients can consult with healthcare providers via video calls, phone, or messaging platforms. Main benefits include: 1) Improved access to care, especially for rural areas, 2) Reduced travel time and costs, 3) Better management of chronic conditions through remote monitoring, 4) Increased convenience and flexibility, 5) Reduced exposure to infectious diseases, 6) Access to specialists regardless of location.",
+      "context": "Telemedicine overview and advantages",
+      "difficulty_level": 2,
+      "subscription_tier": "basic",
+      "tags": ["telemedicine", "remote_healthcare", "benefits"],
+      "quality_score": 9.0,
+      "metadata": {
+        "source": "manual_creation",
+        "created_at": "2024-01-01T00:00:00Z",
+        "validated": true,
+        "token_count": 105,
+        "category": "telemedicine_platforms"
+      }
+    }
+  ]
+}

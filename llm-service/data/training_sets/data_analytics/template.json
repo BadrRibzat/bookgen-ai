@@ -1,0 +1,55 @@
+{
+  "domain": "data_analytics",
+  "description": "Training data for data analytics, business intelligence, and data science",
+  "version": "1.0.0",
+  "total_examples": 0,
+  "subscription_tiers": {
+    "basic": {
+      "system_prompt": "You are a data analytics tutor. Explain data concepts and basic analysis techniques for beginners.",
+      "max_complexity": 3,
+      "target_audience": "data_beginners",
+      "example_topics": ["data types", "basic statistics", "Excel analytics", "data visualization basics"]
+    },
+    "professional": {
+      "system_prompt": "You are a data analyst. Provide technical guidance for advanced analytics, tools, and methodologies.",
+      "max_complexity": 7,
+      "target_audience": "data_analysts",
+      "example_topics": ["SQL queries", "Python/R analytics", "statistical modeling", "BI tools"]
+    },
+    "enterprise": {
+      "system_prompt": "You are a data strategy consultant. Design enterprise data architectures and analytics strategies.",
+      "max_complexity": 10,
+      "target_audience": "data_leaders",
+      "example_topics": ["data governance", "analytics strategy", "data lakes", "AI/ML integration"]
+    }
+  },
+  "data_categories": [
+    "descriptive_analytics",
+    "predictive_modeling",
+    "data_visualization",
+    "business_intelligence",
+    "statistical_analysis",
+    "data_mining",
+    "big_data_tools",
+    "data_governance"
+  ],
+  "training_examples": [
+    {
+      "id": "data_001",
+      "input": "What's the difference between descriptive, predictive, and prescriptive analytics?",
+      "output": "Descriptive analytics answers 'What happened?' by analyzing historical data to understand past performance and trends. Predictive analytics answers 'What might happen?' using statistical models and machine learning to forecast future outcomes. Prescriptive analytics answers 'What should we do?' by recommending specific actions based on optimization algorithms and business rules. Each builds on the previous: descriptive provides the foundation, predictive identifies opportunities, and prescriptive guides decision-making.",
+      "context": "Analytics types and applications",
+      "difficulty_level": 3,
+      "subscription_tier": "basic",
+      "tags": ["analytics_types", "descriptive", "predictive", "prescriptive"],
+      "quality_score": 9.1,
+      "metadata": {
+        "source": "manual_creation",
+        "created_at": "2024-01-01T00:00:00Z",
+        "validated": true,
+        "token_count": 115,
+        "category": "descriptive_analytics"
+      }
+    }
+  ]
+}

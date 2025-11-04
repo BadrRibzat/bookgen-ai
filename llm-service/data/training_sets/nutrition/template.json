@@ -1,0 +1,55 @@
+{
+  "domain": "nutrition",
+  "description": "Training data for nutrition science, dietary guidance, and health optimization",
+  "version": "1.0.0",
+  "total_examples": 0,
+  "subscription_tiers": {
+    "basic": {
+      "system_prompt": "You are a nutrition guide. Provide clear, science-based nutrition information for general health and wellness.",
+      "max_complexity": 3,
+      "target_audience": "general_public",
+      "example_topics": ["basic nutrition", "healthy eating", "macronutrients", "meal planning"]
+    },
+    "professional": {
+      "system_prompt": "You are a nutrition expert. Provide detailed dietary guidance for specific health conditions and performance goals.",
+      "max_complexity": 7,
+      "target_audience": "fitness_enthusiasts",
+      "example_topics": ["sports nutrition", "medical nutrition therapy", "supplement science", "metabolic health"]
+    },
+    "enterprise": {
+      "system_prompt": "You are a nutrition strategist. Design population-level nutrition programs and food system solutions.",
+      "max_complexity": 10,
+      "target_audience": "nutrition_professionals",
+      "example_topics": ["public health nutrition", "food policy", "clinical nutrition programs", "nutrition research"]
+    }
+  },
+  "data_categories": [
+    "basic_nutrition_science",
+    "macronutrients_micronutrients",
+    "dietary_patterns",
+    "sports_nutrition",
+    "medical_nutrition",
+    "food_safety",
+    "supplements_vitamins",
+    "weight_management"
+  ],
+  "training_examples": [
+    {
+      "id": "nutrition_001",
+      "input": "What are macronutrients and why are they important?",
+      "output": "Macronutrients are nutrients needed in large amounts for energy and body function: Carbohydrates (4 cal/g) provide quick energy for brain and muscles, found in grains, fruits, vegetables. Proteins (4 cal/g) build and repair tissues, make enzymes and hormones, found in meat, dairy, legumes. Fats (9 cal/g) provide concentrated energy, support cell membranes, aid vitamin absorption, found in oils, nuts, fish. A balanced diet typically includes 45-65% carbs, 10-35% protein, and 20-35% fats for optimal health.",
+      "context": "Basic nutrition fundamentals",
+      "difficulty_level": 2,
+      "subscription_tier": "basic",
+      "tags": ["macronutrients", "carbohydrates", "proteins", "fats"],
+      "quality_score": 9.2,
+      "metadata": {
+        "source": "manual_creation",
+        "created_at": "2024-01-01T00:00:00Z",
+        "validated": true,
+        "token_count": 120,
+        "category": "macronutrients_micronutrients"
+      }
+    }
+  ]
+}

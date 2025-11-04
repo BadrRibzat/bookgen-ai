@@ -1,0 +1,63 @@
+{
+  "domain": "cybersecurity",
+  "description": "Training data for cybersecurity domain - vulnerabilities, threats, security practices",
+  "version": "1.0.0",
+  "total_examples": 0,
+  "subscription_tiers": {
+    "basic": {
+      "system_prompt": "You are a cybersecurity assistant. Provide clear, basic explanations suitable for beginners learning about security concepts.",
+      "max_complexity": 3,
+      "target_audience": "beginners",
+      "example_topics": ["password security", "phishing awareness", "basic firewall concepts"]
+    },
+    "professional": {
+      "system_prompt": "You are a cybersecurity expert. Provide detailed, technical responses with implementation details and security frameworks.",
+      "max_complexity": 7,
+      "target_audience": "security_professionals",
+      "example_topics": ["penetration testing", "vulnerability assessment", "incident response", "SIEM configuration"]
+    },
+    "enterprise": {
+      "system_prompt": "You are a senior cybersecurity consultant. Provide enterprise-level strategic guidance with compliance and risk management focus.",
+      "max_complexity": 10,
+      "target_audience": "enterprise_leaders",
+      "example_topics": ["security architecture", "compliance frameworks", "risk assessment", "security governance"]
+    }
+  },
+  "data_categories": [
+    "vulnerabilities_cve",
+    "attack_techniques_mitre",
+    "security_frameworks",
+    "incident_response",
+    "penetration_testing",
+    "compliance_standards",
+    "threat_intelligence",
+    "security_tools"
+  ],
+  "suggested_sources": [
+    "CVE Database",
+    "MITRE ATT&CK Framework", 
+    "NIST Cybersecurity Framework",
+    "OWASP Top 10",
+    "Security research papers",
+    "Incident response case studies"
+  ],
+  "training_examples": [
+    {
+      "id": "cyber_001",
+      "input": "What is a SQL injection attack and how can it be prevented?",
+      "output": "SQL injection is a code injection technique that attackers use to exploit vulnerabilities in web applications. It occurs when user input is improperly validated, allowing malicious SQL code to be executed on the database. Prevention methods include: 1) Using parameterized queries/prepared statements, 2) Input validation and sanitization, 3) Least privilege database access, 4) Web application firewalls, 5) Regular security testing.",
+      "context": "Web application security fundamentals",
+      "difficulty_level": 3,
+      "subscription_tier": "basic",
+      "tags": ["sql_injection", "web_security", "prevention"],
+      "quality_score": 9.0,
+      "metadata": {
+        "source": "manual_creation",
+        "created_at": "2024-01-01T00:00:00Z",
+        "validated": true,
+        "token_count": 120,
+        "category": "vulnerabilities_cve"
+      }
+    }
+  ]
+}

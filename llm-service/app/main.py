@@ -1,18 +1,25 @@
 """
-BookGen LLM Service - FastAPI Application
+BookGen LLM Service - FastAPI Application with Custom Training
 """
 
 from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
 from pydantic import BaseModel
-from typing import Optional, List, Dict, Any
-from pathlib import Path
+from typing import Optional
 import logging
 import os
 from dotenv import load_dotenv
+import motor.motor_asyncio
 
-from .ml.service import LLMServiceManager
+from .ml.data_schema import (
+    TrainingExampleRequest,
+    TrainingJobRequest, 
+    TextGenerationRequest,
+    TextGenerationResponse,
+    DatasetStats
+)
+from .ml.data_importer import TrainingDataImporter
+from .ml.llm_trainer import LLMTrainer
 
 # Load environment variables
 load_dotenv()
@@ -23,9 +30,9 @@ logger = logging.getLogger(__name__)
 
 # FastAPI app
 app = FastAPI(
-    title="BookGen LLM Service",
-    description="Custom LLM service for generating domain-specific books",
-    version="1.0.0"
+    title="BookGen Custom LLM Training Service",
+    description="Custom LLM training service for generating domain-specific books with GPT-2 fine-tuning",
+    version="2.0.0"
 )
 
 # CORS middleware
@@ -37,346 +44,478 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Global service instance
-llm_service = None
+# Global service instances
+database = None
+data_importer = None
+llm_trainer = None
 
-# Request/Response models
-class TrainingImportRequest(BaseModel):
-    file_path: str
-    domain: str
-    niche: Optional[str] = None
-    content_type: str = "manual"
+# Background task status tracking
+training_jobs = {}
+import_jobs = {}
 
-class TrainingDirectoryRequest(BaseModel):
-    directory_path: str
-    domain: str
-    niche: Optional[str] = None
-
-class BookGenerationRequest(BaseModel):
-    domain: str
-    niche: str
-    purpose: str
-    target_length: int = 5000
-    output_format: str = 'pdf'
-
-class StatusResponse(BaseModel):
-    initialized: bool
-    model_exists: bool
-    mongodb_connected: bool
-    training_examples: int
-    available_domains: List[str]
-    model_size: int
-    last_training: Optional[str]
-
-# Background tasks
-training_status = {"status": "idle", "progress": 0, "message": ""}
-generation_status = {"status": "idle", "progress": 0, "message": ""}
 
 @app.on_event("startup")
 async def startup_event():
-    """Initialize LLM service on startup"""
-    global llm_service
+    """Initialize services on startup"""
+    global database, data_importer, llm_trainer
+    
     try:
-        service_manager = LLMServiceManager()
-        llm_service = await service_manager.__aenter__()
-        logger.info("LLM Service initialized successfully")
+        # Connect to MongoDB
+        database_url = os.getenv("DATABASE_URL")
+        db_name = os.getenv("MONGODB_DB_NAME", "bookgen_ai")
+        
+        if not database_url:
+            raise ValueError("DATABASE_URL environment variable is required")
+        
+        client = motor.motor_asyncio.AsyncIOMotorClient(database_url)
+        database = client[db_name]
+        
+        # Test connection
+        await client.admin.command('ping')
+        logger.info("Connected to MongoDB successfully")
+        
+        # Initialize services
+        data_importer = TrainingDataImporter(database)
+        llm_trainer = LLMTrainer(database, models_dir=os.getenv("MODELS_DIR", "./models"))
+        
+        # Create necessary directories
+        os.makedirs(os.getenv("MODELS_DIR", "./models"), exist_ok=True)
+        os.makedirs(os.getenv("TRAINING_DATA_DIR", "./data"), exist_ok=True)
+        os.makedirs(os.getenv("OUTPUT_DIR", "./output"), exist_ok=True)
+        os.makedirs(os.getenv("LOGS_DIR", "./logs"), exist_ok=True)
+        
+        logger.info("LLM Training Service initialized successfully")
+        
     except Exception as e:
-        logger.error(f"Failed to initialize LLM service: {e}")
+        logger.error(f"Failed to initialize service: {e}")
+        raise
+
 
 @app.on_event("shutdown")
 async def shutdown_event():
     """Cleanup on shutdown"""
-    global llm_service
-    if llm_service:
-        await llm_service.cleanup()
+    if database:
+        database.client.close()
+        logger.info("Database connection closed")
+
+
+# ============================================
+# Root and Health Endpoints
+# ============================================
 
 @app.get("/")
 async def root():
     """Root endpoint"""
     return {
-        "message": "BookGen LLM Service is running",
-        "version": "1.0.0",
-        "service": "ready" if llm_service else "initializing"
+        "message": "BookGen Custom LLM Training Service",
+        "version": "2.0.0",
+        "features": [
+            "Custom GPT-2 fine-tuning",
+            "Data.gov integration",
+            "Domain-specific training",
+            "Real-time inference",
+            "MongoDB training data storage"
+        ],
+        "status": "ready" if database else "initializing"
     }
+
 
 @app.get("/health")
 async def health_check():
     """Health check endpoint"""
-    if not llm_service:
-        raise HTTPException(status_code=503, detail="Service not initialized")
-    
-    return {"status": "healthy", "service": "running"}
-
-@app.get("/status", response_model=Dict[str, Any])
-async def get_status():
-    """Get current model and service status"""
-    if not llm_service:
-        raise HTTPException(status_code=503, detail="Service not initialized")
+    if not database:
+        raise HTTPException(status_code=503, detail="Database not connected")
     
     try:
-        status = await llm_service.get_model_status()
-        return status
+        # Test database connection
+        await database.command('ping')
+        
+        return {
+            "status": "healthy",
+            "database": "connected",
+            "services": {
+                "data_importer": "ready" if data_importer else "not_initialized",
+                "llm_trainer": "ready" if llm_trainer else "not_initialized"
+            }
+        }
     except Exception as e:
-        logger.error(f"Error getting status: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=503, detail=f"Health check failed: {str(e)}")
 
-@app.post("/training/import")
-async def import_training_data(
+
+# ============================================
+# Training Data Management Endpoints
+# ============================================
+
+@app.post("/data/import/file")
+async def import_data_from_file(
     file_path: str,
-    domain: str, 
-    niche: str = None,
-    content_type: str = "manual"
+    domain_id: str,
+    domain_name: str,
+    niche_id: Optional[str] = None,
+    niche_name: Optional[str] = None,
+    content_type: str = "data_gov",
+    background_tasks: BackgroundTasks = None
 ):
-    """Import manually collected training data"""
-    if not llm_service:
-        raise HTTPException(status_code=503, detail="Service not initialized")
+    """Import training data from JSON file"""
+    if not data_importer:
+        raise HTTPException(status_code=503, detail="Data importer not initialized")
     
     try:
-        success = await llm_service.import_training_data(file_path, domain, niche, content_type)
-        
-        if success:
-            return {
-                "message": "Training data imported successfully",
-                "file_path": file_path,
-                "domain": domain,
-                "niche": niche
-            }
-        else:
-            raise HTTPException(status_code=500, detail="Failed to import training data")
-    
-    except Exception as e:
-        logger.error(f"Error importing training data: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-@app.post("/training/import-directory")
-async def import_training_directory(
-    directory_path: str,
-    domain: str,
-    niche: str = None
-):
-    """Import all training data files from a directory"""
-    if not llm_service:
-        raise HTTPException(status_code=503, detail="Service not initialized")
-    
-    try:
-        success = await llm_service.import_training_directory(directory_path, domain, niche)
-        
-        if success:
-            return {
-                "message": "Training data directory imported successfully",
-                "directory_path": directory_path,
-                "domain": domain,
-                "niche": niche
-            }
-        else:
-            raise HTTPException(status_code=500, detail="Failed to import training directory")
-    
-    except Exception as e:
-        logger.error(f"Error importing training directory: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-@app.post("/training/prepare")
-async def prepare_training_data(domain: str, niche: str = None):
-    """Prepare training data from MongoDB for model training"""
-    if not llm_service:
-        raise HTTPException(status_code=503, detail="Service not initialized")
-    
-    try:
-        success = await llm_service.prepare_training_data(domain, niche)
-        
-        if success:
-            return {"message": "Training data prepared successfully", "domain": domain, "niche": niche}
-        else:
-            raise HTTPException(status_code=500, detail="Failed to prepare training data")
-    
-    except Exception as e:
-        logger.error(f"Error preparing training data: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-@app.post("/training/train")
-async def train_model(domain: str, niche: str = None, background_tasks: BackgroundTasks = None):
-    """Train the model with prepared data from MongoDB"""
-    if not llm_service:
-        raise HTTPException(status_code=503, detail="Service not initialized")
-    
-    # Start background training task
-    if background_tasks:
-        background_tasks.add_task(_train_model_task, domain, niche)
-    
-    return {
-        "message": "Model training started",
-        "domain": domain,
-        "niche": niche,
-        "task_id": "train_model"
-    }
-
-async def _train_model_task(domain: str, niche: str = None):
-    """Background task for model training"""
-    global training_status
-    
-    try:
-        training_status["status"] = "training"
-        training_status["progress"] = 0
-        training_status["message"] = f"Starting model training for {domain}/{niche}"
-        
-        success = await llm_service.train_model(domain, niche)
-        
-        if success:
-            training_status["status"] = "completed"
-            training_status["progress"] = 100
-            training_status["message"] = "Model training completed successfully"
-        else:
-            training_status["status"] = "failed"
-            training_status["message"] = "Model training failed"
-        
-    except Exception as e:
-        training_status["status"] = "failed"
-        training_status["message"] = f"Training error: {str(e)}"
-        logger.error(f"Model training task failed: {e}")
-
-@app.get("/training/status")
-async def get_training_status():
-    """Get training task status"""
-    return training_status
-
-@app.post("/generate/book")
-async def generate_book(request: BookGenerationRequest, background_tasks: BackgroundTasks):
-    """Generate a book"""
-    if not llm_service:
-        raise HTTPException(status_code=503, detail="Service not initialized")
-    
-    # Start background generation task
-    task_id = f"generate_{request.domain}_{request.niche}_{request.purpose}".replace(' ', '_').lower()
-    
-    background_tasks.add_task(
-        _generate_book_task,
-        request.domain,
-        request.niche,
-        request.purpose,
-        request.target_length,
-        request.output_format,
-        task_id
-    )
-    
-    return {
-        "message": "Book generation started",
-        "domain": request.domain,
-        "niche": request.niche,
-        "purpose": request.purpose,
-        "task_id": task_id
-    }
-
-async def _generate_book_task(domain: str, niche: str, purpose: str, 
-                            target_length: int, output_format: str, task_id: str):
-    """Background task for book generation"""
-    global generation_status
-    
-    try:
-        generation_status["status"] = "generating"
-        generation_status["progress"] = 0
-        generation_status["message"] = f"Generating book for {domain}/{niche}"
-        
-        output_path = await llm_service.generate_book(
-            domain, niche, purpose, target_length, output_format
+        imported, skipped, errors = await data_importer.import_from_json_file(
+            file_path, domain_id, domain_name, niche_id, niche_name, content_type
         )
         
-        if output_path:
-            generation_status["status"] = "completed"
-            generation_status["progress"] = 100
-            generation_status["message"] = f"Book generated successfully: {output_path}"
-            generation_status["output_path"] = output_path
-        else:
-            generation_status["status"] = "failed"
-            generation_status["message"] = "Book generation failed"
+        return {
+            "message": "Data import completed",
+            "imported_examples": imported,
+            "skipped_examples": skipped,
+            "errors": errors,
+            "file_path": file_path,
+            "domain_id": domain_id,
+            "niche_id": niche_id
+        }
         
     except Exception as e:
-        generation_status["status"] = "failed"
-        generation_status["message"] = f"Generation error: {str(e)}"
-        logger.error(f"Book generation task failed: {e}")
+        logger.error(f"Error importing data from file: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/generate/status")
-async def get_generation_status():
-    """Get book generation status"""
-    return generation_status
 
-@app.get("/generate/download/{filename}")
-async def download_book(filename: str):
-    """Download generated book"""
-    if not llm_service:
-        raise HTTPException(status_code=503, detail="Service not initialized")
-    
-    file_path = Path(llm_service.output_dir) / filename
-    
-    if not file_path.exists():
-        raise HTTPException(status_code=404, detail="File not found")
-    
-    return FileResponse(
-        path=str(file_path),
-        filename=filename,
-        media_type='application/octet-stream'
-    )
-
-@app.get("/data/domains")
-async def list_available_domains():
-    """List available training domains from MongoDB"""
-    if not llm_service:
-        raise HTTPException(status_code=503, detail="Service not initialized")
+@app.post("/data/import/directory")
+async def import_data_from_directory(
+    directory_path: str,
+    domain_id: str,
+    domain_name: str,
+    niche_id: Optional[str] = None,
+    niche_name: Optional[str] = None,
+    content_type: str = "data_gov"
+):
+    """Import training data from all JSON files in directory"""
+    if not data_importer:
+        raise HTTPException(status_code=503, detail="Data importer not initialized")
     
     try:
-        domains = await llm_service.list_training_domains()
-        return {"available_domains": domains}
+        results = await data_importer.import_from_directory(
+            directory_path, domain_id, domain_name, niche_id, niche_name, content_type
+        )
+        
+        total_imported = sum(result[0] for result in results.values())
+        total_skipped = sum(result[1] for result in results.values())
+        
+        return {
+            "message": "Directory import completed",
+            "total_imported": total_imported,
+            "total_skipped": total_skipped,
+            "files_processed": len(results),
+            "file_results": results,
+            "directory_path": directory_path
+        }
+        
+    except Exception as e:
+        logger.error(f"Error importing data from directory: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/data/examples", response_model=str)
+async def add_training_example(example: TrainingExampleRequest):
+    """Add a single training example"""
+    if not data_importer:
+        raise HTTPException(status_code=503, detail="Data importer not initialized")
+    
+    try:
+        example_id = await data_importer.add_single_example(example)
+        return example_id
+        
+    except Exception as e:
+        logger.error(f"Error adding training example: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/data/stats")
+async def get_dataset_stats(
+    domain_id: str,
+    niche_id: Optional[str] = None
+) -> DatasetStats:
+    """Get dataset statistics"""
+    if not data_importer:
+        raise HTTPException(status_code=503, detail="Data importer not initialized")
+    
+    try:
+        stats = await data_importer.get_dataset_stats(domain_id, niche_id)
+        if not stats:
+            raise HTTPException(status_code=404, detail="No data found for specified domain/niche")
+        
+        return stats
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting dataset stats: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/data/domains")
+async def list_domains():
+    """List all available domains with training data"""
+    if not data_importer:
+        raise HTTPException(status_code=503, detail="Data importer not initialized")
+    
+    try:
+        domains = await data_importer.list_domains()
+        return {"domains": domains}
+        
     except Exception as e:
         logger.error(f"Error listing domains: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @app.delete("/data/clear")
-async def clear_training_data(domain: str = None, niche: str = None):
-    """Clear training data from MongoDB"""
-    if not llm_service:
+async def clear_training_data(
+    domain_id: Optional[str] = None,
+    niche_id: Optional[str] = None
+):
+    """Clear training data"""
+    if not data_importer:
+        raise HTTPException(status_code=503, detail="Data importer not initialized")
+    
+    try:
+        deleted_count = await data_importer.clear_training_data(domain_id, niche_id)
+        
+        scope = "all data"
+        if domain_id:
+            scope = f"domain '{domain_id}'"
+            if niche_id:
+                scope += f" niche '{niche_id}'"
+        
+        return {
+            "message": f"Cleared {deleted_count} training examples from {scope}",
+            "deleted_count": deleted_count
+        }
+        
+    except Exception as e:
+        logger.error(f"Error clearing training data: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ============================================
+# Model Training Endpoints
+# ============================================
+
+@app.post("/train", response_model=str)
+async def start_training(
+    request: TrainingJobRequest,
+    background_tasks: BackgroundTasks
+):
+    """Start a new training job"""
+    if not llm_trainer:
+        raise HTTPException(status_code=503, detail="LLM trainer not initialized")
+    
+    try:
+        job_id = await llm_trainer.start_training_job(
+            request,
+            progress_callback=lambda job_id, epoch, total_epochs, status, **kwargs: 
+                training_jobs.update({
+                    job_id: {
+                        "epoch": epoch,
+                        "total_epochs": total_epochs,
+                        "status": status,
+                        "progress": (epoch / total_epochs) * 100 if total_epochs > 0 else 0,
+                        **kwargs
+                    }
+                })
+        )
+        
+        return job_id
+        
+    except Exception as e:
+        logger.error(f"Error starting training: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/train/status/{job_id}")
+async def get_training_status(job_id: str):
+    """Get training job status"""
+    if not llm_trainer:
+        raise HTTPException(status_code=503, detail="LLM trainer not initialized")
+    
+    try:
+        job = await llm_trainer.get_training_status(job_id)
+        if not job:
+            raise HTTPException(status_code=404, detail="Training job not found")
+        
+        # Merge with real-time progress if available
+        real_time_progress = training_jobs.get(job_id, {})
+        
+        return {
+            "job": job.dict(),
+            "real_time_progress": real_time_progress
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting training status: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/train/jobs")
+async def list_training_jobs(
+    domain_id: Optional[str] = None,
+    limit: int = 50
+):
+    """List training jobs"""
+    if not llm_trainer:
+        raise HTTPException(status_code=503, detail="LLM trainer not initialized")
+    
+    try:
+        jobs = await llm_trainer.list_training_jobs(domain_id, limit)
+        return {"jobs": [job.dict() for job in jobs]}
+        
+    except Exception as e:
+        logger.error(f"Error listing training jobs: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ============================================
+# Model Management Endpoints
+# ============================================
+
+@app.get("/models")
+async def list_models(domain_id: Optional[str] = None):
+    """List available trained models"""
+    if not llm_trainer:
+        raise HTTPException(status_code=503, detail="LLM trainer not initialized")
+    
+    try:
+        models = await llm_trainer.get_available_models(domain_id)
+        return {"models": [model.dict() for model in models]}
+        
+    except Exception as e:
+        logger.error(f"Error listing models: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ============================================
+# Text Generation Endpoints
+# ============================================
+
+@app.post("/generate", response_model=TextGenerationResponse)
+async def generate_text(request: TextGenerationRequest):
+    """Generate text using trained model"""
+    if not llm_trainer:
+        raise HTTPException(status_code=503, detail="LLM trainer not initialized")
+    
+    try:
+        response = await llm_trainer.generate_text(request)
+        return response
+        
+    except Exception as e:
+        logger.error(f"Error generating text: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ============================================
+# Utility Endpoints
+# ============================================
+
+@app.get("/supported-domains")
+async def get_supported_domains():
+    """Get list of supported domains"""
+    domains = os.getenv("SUPPORTED_DOMAINS", "").split(",")
+    
+    domain_info = {
+        "ai_ml": "AI & Machine Learning",
+        "automation": "Automation & Productivity",
+        "healthtech": "Health Technology",
+        "cybersecurity": "Cybersecurity",
+        "creator_economy": "Creator Economy",
+        "web3": "Web3 & Blockchain",
+        "ecommerce": "E-commerce",
+        "data_analytics": "Data Analytics",
+        "gaming": "Gaming",
+        "kids_parenting": "Kids & Parenting",
+        "nutrition": "Nutrition & Wellness",
+        "recipes": "Recipes & Cooking"
+    }
+    
+    return {
+        "supported_domains": [
+            {
+                "id": domain_id.strip(),
+                "name": domain_info.get(domain_id.strip(), domain_id.strip().replace("_", " ").title())
+            }
+            for domain_id in domains if domain_id.strip()
+        ]
+    }
+
+
+@app.get("/template/training-data")
+async def get_training_data_template():
+    """Get training data JSON template"""
+    from .ml.data_importer import create_example_template
+    
+    template = [create_example_template()]
+    
+    return {
+        "template": template,
+        "description": "Use this template for creating training data JSON files",
+        "required_fields": ["prompt", "completion"],
+        "optional_fields": [
+            "quality_score", "chapter_type", "target_audience",
+            "training_weight", "tags", "metadata"
+        ]
+    }
+
+
+@app.get("/status/system")
+async def get_system_status():
+    """Get comprehensive system status"""
+    if not database:
         raise HTTPException(status_code=503, detail="Service not initialized")
     
     try:
-        success = await llm_service.clear_training_data(domain, niche)
+        # Get database stats
+        stats = await database.command("dbStats")
         
-        if success:
-            message = f"Training data cleared successfully"
-            if domain:
-                message += f" for domain: {domain}"
-            if niche:
-                message += f" and niche: {niche}"
-            return {"message": message}
-        else:
-            raise HTTPException(status_code=500, detail="Failed to clear training data")
-    
+        # Check if we're currently training
+        is_training = llm_trainer.is_training if llm_trainer else False
+        current_job = llm_trainer.current_job.dict() if llm_trainer and llm_trainer.current_job else None
+        
+        # Count records in collections
+        training_data_count = await database.llm_training_data.count_documents({})
+        models_count = await database.llm_models.count_documents({"is_active": True})
+        jobs_count = await database.llm_training_jobs.count_documents({})
+        
+        return {
+            "service_status": "running",
+            "database": {
+                "connected": True,
+                "name": stats.get("db"),
+                "collections": stats.get("collections", 0),
+                "data_size": f"{stats.get('dataSize', 0) / (1024*1024):.2f} MB"
+            },
+            "training": {
+                "is_training": is_training,
+                "current_job": current_job,
+                "active_jobs": len([j for j in training_jobs.values() if j.get("status") == "training"])
+            },
+            "data": {
+                "training_examples": training_data_count,
+                "trained_models": models_count,
+                "total_jobs": jobs_count
+            },
+            "real_time_jobs": len(training_jobs)
+        }
+        
     except Exception as e:
-        logger.error(f"Error clearing data: {e}")
+        logger.error(f"Error getting system status: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/model/reset")
-async def reset_model():
-    """Reset/reinitialize the model"""
-    if not llm_service:
-        raise HTTPException(status_code=503, detail="Service not initialized")
-    
-    try:
-        # Reinitialize model
-        success = await llm_service.initialize_model()
-        
-        if success:
-            return {"message": "Model reset successfully"}
-        else:
-            raise HTTPException(status_code=500, detail="Failed to reset model")
-    
-    except Exception as e:
-        logger.error(f"Error resetting model: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-# Utility endpoints
-@app.get("/docs-redirect")
-async def docs_redirect():
-    """Redirect to API documentation"""
-    return {"message": "Visit /docs for API documentation"}
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(
+        app, 
+        host=os.getenv("HOST", "0.0.0.0"), 
+        port=int(os.getenv("PORT", 8001)),
+        reload=os.getenv("DEBUG", "False").lower() == "true"
+    )

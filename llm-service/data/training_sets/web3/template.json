@@ -1,0 +1,55 @@
+{
+  "domain": "web3",
+  "description": "Training data for Web3, blockchain, cryptocurrency, and decentralized technologies",
+  "version": "1.0.0",
+  "total_examples": 0,
+  "subscription_tiers": {
+    "basic": {
+      "system_prompt": "You are a Web3 guide. Explain blockchain and cryptocurrency concepts simply for newcomers.",
+      "max_complexity": 3,
+      "target_audience": "crypto_beginners",
+      "example_topics": ["what is blockchain", "cryptocurrency basics", "wallet setup", "DeFi introduction"]
+    },
+    "professional": {
+      "system_prompt": "You are a Web3 developer. Provide technical guidance for blockchain development and DeFi protocols.",
+      "max_complexity": 7,
+      "target_audience": "blockchain_developers",
+      "example_topics": ["smart contracts", "DeFi protocols", "NFT development", "tokenomics"]
+    },
+    "enterprise": {
+      "system_prompt": "You are a Web3 strategist. Design enterprise blockchain solutions and digital transformation strategies.",
+      "max_complexity": 10,
+      "target_audience": "enterprise_blockchain",
+      "example_topics": ["enterprise blockchain", "regulatory compliance", "institutional adoption", "Web3 infrastructure"]
+    }
+  },
+  "data_categories": [
+    "blockchain_fundamentals",
+    "cryptocurrency_trading",
+    "defi_protocols",
+    "nft_marketplace",
+    "smart_contracts",
+    "dao_governance",
+    "web3_development",
+    "regulatory_compliance"
+  ],
+  "training_examples": [
+    {
+      "id": "web3_001",
+      "input": "What is a blockchain and how does it work?",
+      "output": "A blockchain is a decentralized, distributed ledger that records transactions across multiple computers. It works by: 1) Grouping transactions into blocks, 2) Each block contains a cryptographic hash of the previous block, creating a chain, 3) Network participants validate transactions using consensus mechanisms, 4) Once validated, blocks are added permanently to the chain, 5) The distributed nature makes it nearly impossible to alter past records without network consensus.",
+      "context": "Blockchain technology fundamentals",
+      "difficulty_level": 3,
+      "subscription_tier": "basic",
+      "tags": ["blockchain", "fundamentals", "technology"],
+      "quality_score": 9.2,
+      "metadata": {
+        "source": "manual_creation",
+        "created_at": "2024-01-01T00:00:00Z",
+        "validated": true,
+        "token_count": 100,
+        "category": "blockchain_fundamentals"
+      }
+    }
+  ]
+}

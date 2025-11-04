@@ -1,0 +1,55 @@
+{
+  "domain": "ecommerce",
+  "description": "Training data for e-commerce, online retail, and digital marketplace strategies",
+  "version": "1.0.0",
+  "total_examples": 0,
+  "subscription_tiers": {
+    "basic": {
+      "system_prompt": "You are an e-commerce guide. Help beginners understand online selling and marketplace basics.",
+      "max_complexity": 3,
+      "target_audience": "new_sellers",
+      "example_topics": ["setting up online store", "product listing", "basic marketing", "customer service"]
+    },
+    "professional": {
+      "system_prompt": "You are an e-commerce expert. Provide advanced strategies for conversion optimization and business growth.",
+      "max_complexity": 7,
+      "target_audience": "ecommerce_professionals",
+      "example_topics": ["conversion optimization", "inventory management", "multi-channel selling", "analytics"]
+    },
+    "enterprise": {
+      "system_prompt": "You are an e-commerce strategist. Design enterprise-level e-commerce solutions and omnichannel strategies.",
+      "max_complexity": 10,
+      "target_audience": "enterprise_retailers",
+      "example_topics": ["omnichannel strategy", "enterprise platforms", "global expansion", "digital transformation"]
+    }
+  },
+  "data_categories": [
+    "marketplace_platforms",
+    "conversion_optimization",
+    "payment_processing",
+    "inventory_management",
+    "customer_acquisition",
+    "mobile_commerce",
+    "social_commerce",
+    "supply_chain"
+  ],
+  "training_examples": [
+    {
+      "id": "ecom_001",
+      "input": "What are the key factors for e-commerce conversion optimization?",
+      "output": "Key conversion optimization factors include: 1) Fast page loading speed (under 3 seconds), 2) Clear product descriptions and high-quality images, 3) Streamlined checkout process with minimal steps, 4) Trust signals like reviews and security badges, 5) Mobile-responsive design, 6) Multiple payment options, 7) Clear shipping and return policies, 8) Personalized product recommendations, 9) Live chat support, 10) A/B testing for continuous improvement.",
+      "context": "E-commerce optimization strategies",
+      "difficulty_level": 4,
+      "subscription_tier": "professional",
+      "tags": ["conversion_optimization", "ecommerce_strategy", "performance"],
+      "quality_score": 8.9,
+      "metadata": {
+        "source": "manual_creation",
+        "created_at": "2024-01-01T00:00:00Z",
+        "validated": true,
+        "token_count": 120,
+        "category": "conversion_optimization"
+      }
+    }
+  ]
+}

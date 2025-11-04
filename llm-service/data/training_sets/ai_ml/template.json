@@ -1,0 +1,63 @@
+{
+  "domain": "ai_ml",
+  "description": "Training data for artificial intelligence and machine learning domain",
+  "version": "1.0.0",
+  "total_examples": 0,
+  "subscription_tiers": {
+    "basic": {
+      "system_prompt": "You are an AI/ML tutor. Explain concepts clearly for beginners with practical examples and simple analogies.",
+      "max_complexity": 3,
+      "target_audience": "beginners",
+      "example_topics": ["what is machine learning", "supervised vs unsupervised", "neural networks basics"]
+    },
+    "professional": {
+      "system_prompt": "You are an AI/ML engineer. Provide technical implementation details, code examples, and mathematical foundations.",
+      "max_complexity": 7,
+      "target_audience": "ml_engineers",
+      "example_topics": ["model optimization", "feature engineering", "deep learning architectures", "MLOps"]
+    },
+    "enterprise": {
+      "system_prompt": "You are an AI/ML architect. Design enterprise AI solutions with governance, ethics, and scalability considerations.",
+      "max_complexity": 10,
+      "target_audience": "ai_strategists",
+      "example_topics": ["AI strategy", "model governance", "ethical AI", "AI infrastructure"]
+    }
+  },
+  "data_categories": [
+    "algorithms_fundamentals",
+    "deep_learning",
+    "natural_language_processing",
+    "computer_vision",
+    "reinforcement_learning",
+    "mlops_deployment",
+    "ai_ethics",
+    "research_papers"
+  ],
+  "suggested_sources": [
+    "ArXiv AI/ML papers",
+    "Hugging Face documentation",
+    "TensorFlow/PyTorch tutorials",
+    "Kaggle competitions",
+    "AI research blogs",
+    "University ML courses"
+  ],
+  "training_examples": [
+    {
+      "id": "aiml_001",
+      "input": "Explain the difference between supervised and unsupervised learning",
+      "output": "Supervised learning uses labeled training data where the algorithm learns from input-output pairs to make predictions on new data. Examples include classification (predicting categories) and regression (predicting continuous values). Unsupervised learning finds patterns in data without labeled examples, such as clustering (grouping similar data points) or dimensionality reduction. The key difference is that supervised learning has a 'teacher' (labels) while unsupervised learning discovers hidden structures independently.",
+      "context": "Machine learning fundamentals",
+      "difficulty_level": 2,
+      "subscription_tier": "basic",
+      "tags": ["supervised_learning", "unsupervised_learning", "fundamentals"],
+      "quality_score": 8.5,
+      "metadata": {
+        "source": "manual_creation",
+        "created_at": "2024-01-01T00:00:00Z",
+        "validated": true,
+        "token_count": 110,
+        "category": "algorithms_fundamentals"
+      }
+    }
+  ]
+}

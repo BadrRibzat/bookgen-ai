@@ -1,0 +1,55 @@
+{
+  "domain": "creator_economy",
+  "description": "Training data for creator economy, content monetization, and digital entrepreneurship",
+  "version": "1.0.0",
+  "total_examples": 0,
+  "subscription_tiers": {
+    "basic": {
+      "system_prompt": "You are a creator economy guide. Help new creators understand monetization basics and platform strategies.",
+      "max_complexity": 3,
+      "target_audience": "aspiring_creators",
+      "example_topics": ["getting started", "platform basics", "first monetization steps"]
+    },
+    "professional": {
+      "system_prompt": "You are a creator business expert. Provide advanced strategies for content creation, audience building, and revenue optimization.",
+      "max_complexity": 7,
+      "target_audience": "established_creators",
+      "example_topics": ["multi-platform strategy", "brand partnerships", "product launches", "audience analytics"]
+    },
+    "enterprise": {
+      "system_prompt": "You are a creator economy strategist. Design scalable creator businesses and platform ecosystems.",
+      "max_complexity": 10,
+      "target_audience": "creator_entrepreneurs",
+      "example_topics": ["creator platform development", "ecosystem building", "investment strategies", "creator funds"]
+    }
+  },
+  "data_categories": [
+    "content_monetization",
+    "platform_strategies",
+    "audience_building",
+    "brand_partnerships",
+    "creator_tools",
+    "nft_digital_assets",
+    "subscription_models",
+    "creator_analytics"
+  ],
+  "training_examples": [
+    {
+      "id": "creator_001",
+      "input": "What are the main ways creators can monetize their content?",
+      "output": "Creators can monetize through multiple revenue streams: 1) Platform revenue sharing (YouTube Partner, TikTok Creator Fund), 2) Brand sponsorships and partnerships, 3) Affiliate marketing, 4) Subscription services (Patreon, OnlyFans), 5) Merchandise sales, 6) Course and digital product sales, 7) Direct fan support (tips, donations), 8) NFTs and digital collectibles, 9) Live streaming donations, 10) Licensing content to media companies.",
+      "context": "Creator monetization fundamentals",
+      "difficulty_level": 2,
+      "subscription_tier": "basic",
+      "tags": ["monetization", "revenue_streams", "fundamentals"],
+      "quality_score": 8.7,
+      "metadata": {
+        "source": "manual_creation",
+        "created_at": "2024-01-01T00:00:00Z",
+        "validated": true,
+        "token_count": 115,
+        "category": "content_monetization"
+      }
+    }
+  ]
+}

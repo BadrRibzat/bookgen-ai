@@ -35,13 +35,14 @@
 - Genre-specific content templates
 - Professional book metadata management
 
-#### 🤖 **Advanced LLM Service**
-- **Manual Data Collection Workflow** - Import custom training data
+#### 🤖 **Custom LLM Training Service**
+- **Local JSON Storage Infrastructure** - Complete 12-domain data organization
+- **Manual Data Collection Workflow** - Quality-controlled training data
+- **Subscription-Tier Support** - Basic, Professional, Enterprise content generation
 - **MongoDB Atlas Integration** - Production-ready database storage
-- **PEFT/LoRA Fine-tuning** - Parameter-efficient model customization
-- **Multi-format Data Import** - Support for JSON, CSV, TXT files
-- **Custom Model Training** - Domain-specific knowledge fine-tuning
-- **Async Processing Pipeline** - High-performance training workflows
+- **GPT-2 Fine-tuning** - Domain-specific model customization
+- **Data Validation Tools** - Comprehensive JSON validation and quality checks
+- **Background Training Pipeline** - Async model training with progress tracking
 
 #### 📄 **Professional PDF Generation**
 - High-quality book formatting with ReportLab
@@ -56,6 +57,7 @@
 - Production-ready logging and monitoring
 
 ### 🔄 Coming Soon
+- **Manual Data Collection** - Research and collect high-quality training data
 - **Rich Book Editing** - Advanced text editor for content refinement
 - **AI Cover Generation** - Automated professional book covers  
 - **PDF Browser Preview** - In-browser PDF viewing and downloading
@@ -81,26 +83,27 @@ graph TB
     end
     
     subgraph "AI Processing Layer"
-        I[FastAPI LLM Service] --> J[Manual Data Import]
-        J --> K[MongoDB Atlas Storage]
-        K --> L[PEFT/LoRA Training]
-        L --> M[Custom Model Fine-tuning]
-        M --> N[Book Generation Engine]
+        I[FastAPI LLM Service] --> J[Local JSON Storage]
+        J --> K[Data Validation Tool]
+        K --> L[MongoDB Atlas Storage]
+        L --> M[GPT-2 Fine-tuning]
+        M --> N[Subscription-Tier Generation]
+        N --> O[Domain-Specific Models]
     end
     
     subgraph "Data & Infrastructure"
-        O[PostgreSQL] --> P[User Data]
-        Q[MongoDB Atlas] --> R[Training Data]
-        S[Redis] --> T[Caching & Tasks]
-        U[Celery] --> V[Async Processing]
+        P[PostgreSQL] --> Q[User Data]
+        R[MongoDB Atlas] --> S[Training Data]
+        T[Redis] --> U[Caching & Tasks]
+        V[Celery] --> W[Async Processing]
     end
     
     A --> E
     E --> I
-    I --> Q
-    E --> O
-    E --> S
-    S --> U
+    I --> R
+    E --> P
+    E --> T
+    T --> V
 ```
 
 ---
@@ -138,16 +141,34 @@ bookgen-ai/
 │   ├── app/                        # FastAPI application
 │   │   ├── main.py                 # FastAPI app entry point
 │   │   ├── ml/                     # Machine learning modules
-│   │   │   ├── preprocessing.py    # Data preprocessing & import
-│   │   │   ├── model.py           # Model definitions
-│   │   │   ├── service.py         # ML service orchestrator
-│   │   │   └── pdf_generator.py   # PDF generation engine
+│   │   │   ├── data_schema.py      # MongoDB schemas
+│   │   │   ├── data_importer.py    # Local JSON import & validation
+│   │   │   └── llm_trainer.py      # GPT-2 fine-tuning
 │   │   ├── models/                 # Pydantic models
 │   │   └── api/                    # API route handlers
-│   ├── data/                       # Training data storage
+│   ├── data/training_sets/         # Local JSON storage (12 domains)
+│   │   ├── README.md               # Complete data collection guide
+│   │   ├── template.json           # Universal data format template
+│   │   ├── cybersecurity/          # Cybersecurity training data
+│   │   │   └── template.json       # Domain-specific template
+│   │   ├── ai_ml/                  # AI/ML training data
+│   │   │   └── template.json       # Domain-specific template
+│   │   ├── automation/             # Automation training data
+│   │   ├── healthtech/             # HealthTech training data
+│   │   ├── creator_economy/        # Creator Economy training data
+│   │   ├── web3/                   # Web3 training data
+│   │   ├── ecommerce/              # E-commerce training data
+│   │   ├── data_analytics/         # Data Analytics training data
+│   │   ├── gaming/                 # Gaming training data
+│   │   ├── kids_parenting/         # Kids/Parenting training data
+│   │   ├── nutrition/              # Nutrition training data
+│   │   └── recipes/                # Recipes training data
 │   ├── tests/                      # LLM service tests
+│   ├── demo_manual_import.py       # CLI import tool for local JSON
+│   ├── validate_data.py            # JSON validation and quality check tool
 │   ├── requirements.txt            # Python dependencies
-│   └── test_setup.py              # Setup verification
+│   ├── README_CUSTOM_TRAINING.md   # Complete documentation
+│   └── IMPLEMENTATION_COMPLETE.md  # Implementation summary
 │
 ├── 📋 shared/                      # Shared resources
 │   └── types/                      # Common TypeScript types
@@ -217,7 +238,11 @@ cd llm-service
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-python test_setup.py  # Verify installation
+
+# Verify local JSON storage infrastructure
+ls data/training_sets/
+
+# Start the service
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8002
 ```
 
@@ -254,40 +279,93 @@ cd llm-service && python test_setup.py
 ## 🤖 LLM Service Implementation
 
 ### Core Features
-- **Manual Data Collection**: Import custom training datasets
-- **MongoDB Atlas Integration**: Production database for training data
-- **PEFT/LoRA Fine-tuning**: Memory-efficient model customization
-- **Multi-format Support**: JSON, CSV, TXT data import
-- **Async Processing**: High-performance training pipeline
-- **Professional PDF Generation**: ReportLab-based book formatting
+- **Local JSON Storage Infrastructure**: Complete 12-domain data organization with templates
+- **Manual Data Collection**: Quality-controlled training data collection workflow
+- **MongoDB Atlas Integration**: Production database for training data storage
+- **GPT-2 Fine-tuning**: Lightweight, efficient model customization
+- **Subscription-Tier Support**: Basic, Professional, Enterprise content generation
+- **Data Validation Tools**: Comprehensive JSON validation and quality checking
+- **Background Training Pipeline**: Async model training with progress tracking
 
-### Training Data Workflow
+### Data Collection Workflow
 ```bash
-# 1. Set up MongoDB connection
-export MONGODB_URL='mongodb+srv://<username>:<password>@<cluster>.mongodb.net/<database>'
+# 1. Read the comprehensive data collection guide
+cat llm-service/data/training_sets/README.md
 
-# 2. Import training data
-curl -X POST "http://localhost:8002/training/import" \
-  -H "Content-Type: multipart/form-data" \
-  -F "file=@your_training_data.json" \
-  -F "data_type=domain_knowledge"
+# 2. Validate your training data before importing
+cd llm-service
+python validate_data.py --all
 
-# 3. Train custom model
-curl -X POST "http://localhost:8002/training/start" \
+# 3. Import validated training data
+python demo_manual_import.py import-dir \
+  --directory data/training_sets/cybersecurity \
+  --domain-id cybersecurity
+
+# 4. Train custom model
+curl -X POST "http://localhost:8002/train" \
   -H "Content-Type: application/json" \
-  -d '{"model_name": "custom-book-generator", "epochs": 3}'
+  -d '{"domain_id": "cybersecurity", "job_name": "Cybersecurity Model Training", "epochs": 3}'
 
-# 4. Generate book content
+# 5. Generate domain-specific content
 curl -X POST "http://localhost:8002/generate" \
   -H "Content-Type: application/json" \
-  -d '{"topic": "AI in Education", "style": "academic", "length": "comprehensive"}'
+  -d '{"prompt": "What are the main cybersecurity threats in 2024?", "domain_id": "cybersecurity"}'
 ```
 
-### Supported Data Formats
-- **JSON**: Structured training data with metadata
-- **CSV**: Tabular data with headers
-- **TXT**: Plain text for language modeling
-- **Custom**: Extensible import system
+### Supported Domains & Templates
+All 12 domains have dedicated folder structure with domain-specific JSON templates:
+
+| Domain | Folder | Focus Areas |
+|--------|--------|-------------|
+| **Cybersecurity** | `cybersecurity/` | Vulnerabilities, threats, security practices |
+| **AI & ML** | `ai_ml/` | Machine learning, AI research, implementations |
+| **Automation** | `automation/` | RPA, workflow optimization, process improvement |
+| **HealthTech** | `healthtech/` | Medical devices, digital health, telemedicine |
+| **Creator Economy** | `creator_economy/` | Content monetization, platform strategies |
+| **Web3** | `web3/` | Blockchain, cryptocurrency, DeFi, NFTs |
+| **E-commerce** | `ecommerce/` | Online retail, marketplaces, conversion optimization |
+| **Data Analytics** | `data_analytics/` | Business intelligence, data science, visualization |
+| **Gaming** | `gaming/` | Game development, industry trends, monetization |
+| **Kids/Parenting** | `kids_parenting/` | Child development, parenting advice, education |
+| **Nutrition** | `nutrition/` | Dietary guidance, health optimization, supplements |
+| **Recipes** | `recipes/` | Cooking techniques, recipe development, culinary arts |
+
+### Local JSON Storage Format
+```json
+{
+  "domain": "cybersecurity",
+  "description": "Training data for cybersecurity domain",
+  "version": "1.0.0",
+  "total_examples": 100,
+  "subscription_tiers": {
+    "basic": {
+      "system_prompt": "You are a cybersecurity assistant for beginners...",
+      "max_complexity": 3,
+      "target_audience": "beginners"
+    },
+    "professional": {
+      "system_prompt": "You are a cybersecurity expert...",
+      "max_complexity": 7,
+      "target_audience": "professionals"  
+    },
+    "enterprise": {
+      "system_prompt": "You are a senior cybersecurity consultant...",
+      "max_complexity": 10,
+      "target_audience": "enterprise_leaders"
+    }
+  },
+  "training_examples": [
+    {
+      "id": "cyber_001",
+      "input": "What is a SQL injection attack?",
+      "output": "SQL injection is a code injection technique...",
+      "difficulty_level": 3,
+      "subscription_tier": "basic",
+      "quality_score": 9.0
+    }
+  ]
+}
+```
 
 ---
 
@@ -305,10 +383,22 @@ EMAIL_HOST_PASSWORD=your-app-password
 
 ### LLM Service Environment (.env)
 ```bash
-MONGODB_URL=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/<database>
-OPENAI_API_KEY=optional-for-fallback
-HUGGINGFACE_TOKEN=optional-for-model-access
-MODEL_CACHE_DIR=/app/models
+# MongoDB Atlas (shared with backend)
+DATABASE_URL=mongodb+srv://badrribzat_db_user:7kVwsuJJMsP3EKF5@book-generator.yfcmxzd.mongodb.net/?retryWrites=true&w=majority&appName=book-generator
+MONGODB_DB_NAME=bookgen_ai
+
+# Training Configuration
+DEFAULT_BATCH_SIZE=4
+DEFAULT_LEARNING_RATE=5e-5
+DEFAULT_EPOCHS=3
+MAX_SEQUENCE_LENGTH=512
+
+# Hardware Settings
+DEVICE=auto  # auto, cpu, cuda
+USE_FP16=true
+
+# Supported Domains
+SUPPORTED_DOMAINS=cybersecurity,ai_ml,automation,healthtech,creator_economy,web3,ecommerce,data_analytics,gaming,kids_parenting,nutrition,recipes
 ```
 
 ### Frontend Environment (.env.local)
@@ -357,13 +447,19 @@ We welcome contributions! Please follow these guidelines:
 
 ## 📈 Roadmap
 
-### Phase 3 (Next Quarter)
+### Phase 3 (Next Phase - Manual Data Collection)
+- [ ] Research and collect high-quality training data for target domains
+- [ ] Validate and import training data using local JSON storage
+- [ ] Train initial domain-specific models
+- [ ] Test and refine content generation quality
+
+### Phase 4 (Q1 2025)
 - [ ] Rich text editor integration
 - [ ] AI-powered cover generation
 - [ ] Advanced PDF customization
 - [ ] Multi-language support
 
-### Phase 4 (Future)
+### Phase 5 (Future)
 - [ ] Payment and subscription system
 - [ ] Collaboration features
 - [ ] Mobile application
@@ -389,7 +485,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Made with ❤️ by the BookGen-AI Team**
 
-*Last updated: November 3, 2025*
+*Last updated: November 4, 2025*
  # � BookGen-AI
 
  ![BookGen-AI logo](frontend/public/favicon.svg)

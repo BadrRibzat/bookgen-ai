@@ -1,0 +1,63 @@
+{
+  "domain": "automation", 
+  "description": "Training data for automation, workflow optimization, and process improvement",
+  "version": "1.0.0",
+  "total_examples": 0,
+  "subscription_tiers": {
+    "basic": {
+      "system_prompt": "You are an automation assistant. Help users understand basic automation concepts and simple workflow improvements.",
+      "max_complexity": 3,
+      "target_audience": "beginners",
+      "example_topics": ["task automation", "workflow basics", "productivity tools"]
+    },
+    "professional": {
+      "system_prompt": "You are an automation engineer. Provide technical solutions for process automation, scripting, and system integration.",
+      "max_complexity": 7, 
+      "target_audience": "automation_engineers",
+      "example_topics": ["RPA implementation", "API automation", "CI/CD pipelines", "workflow orchestration"]
+    },
+    "enterprise": {
+      "system_prompt": "You are an automation strategist. Design enterprise-wide automation strategies and digital transformation initiatives.",
+      "max_complexity": 10,
+      "target_audience": "digital_transformation_leaders",
+      "example_topics": ["automation strategy", "process mining", "digital transformation", "ROI analysis"]
+    }
+  },
+  "data_categories": [
+    "rpa_robotic_process_automation",
+    "workflow_orchestration", 
+    "api_automation",
+    "cicd_devops",
+    "business_process_optimization",
+    "no_code_low_code",
+    "integration_platforms",
+    "monitoring_analytics"
+  ],
+  "suggested_sources": [
+    "RPA vendor documentation",
+    "Workflow automation platforms",
+    "DevOps best practices",
+    "Business process guides",
+    "Automation case studies",
+    "Integration platform docs"
+  ],
+  "training_examples": [
+    {
+      "id": "auto_001",
+      "input": "What is RPA and how does it differ from traditional automation?",
+      "output": "RPA (Robotic Process Automation) uses software robots to automate repetitive, rule-based tasks by mimicking human interactions with digital systems. Unlike traditional automation that requires deep system integration and custom coding, RPA works at the user interface level, making it faster to implement and less disruptive. RPA bots can handle tasks like data entry, form filling, and moving information between systems without changing existing infrastructure.",
+      "context": "RPA fundamentals and comparison",
+      "difficulty_level": 2,
+      "subscription_tier": "basic",
+      "tags": ["rpa", "automation_types", "fundamentals"],
+      "quality_score": 8.8,
+      "metadata": {
+        "source": "manual_creation",
+        "created_at": "2024-01-01T00:00:00Z",
+        "validated": true,
+        "token_count": 95,
+        "category": "rpa_robotic_process_automation"
+      }
+    }
+  ]
+}

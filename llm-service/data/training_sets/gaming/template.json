@@ -1,0 +1,55 @@
+{
+  "domain": "gaming",
+  "description": "Training data for gaming industry, game development, and gaming business strategies",
+  "version": "1.0.0",
+  "total_examples": 0,
+  "subscription_tiers": {
+    "basic": {
+      "system_prompt": "You are a gaming guide. Help newcomers understand game development basics and gaming industry fundamentals.",
+      "max_complexity": 3,
+      "target_audience": "aspiring_developers",
+      "example_topics": ["game design basics", "choosing game engines", "indie development", "gaming platforms"]
+    },
+    "professional": {
+      "system_prompt": "You are a game development expert. Provide technical guidance for game programming, design, and production.",
+      "max_complexity": 7,
+      "target_audience": "game_developers",
+      "example_topics": ["advanced programming", "game optimization", "multiplayer systems", "monetization"]
+    },
+    "enterprise": {
+      "system_prompt": "You are a gaming industry strategist. Design enterprise gaming solutions and business strategies.",
+      "max_complexity": 10,
+      "target_audience": "gaming_executives",
+      "example_topics": ["gaming platforms", "esports strategy", "metaverse development", "gaming investments"]
+    }
+  },
+  "data_categories": [
+    "game_development",
+    "game_design_principles",
+    "gaming_engines",
+    "monetization_strategies",
+    "esports_industry",
+    "mobile_gaming",
+    "vr_ar_gaming",
+    "gaming_analytics"
+  ],
+  "training_examples": [
+    {
+      "id": "gaming_001",
+      "input": "What are the main game monetization models?",
+      "output": "Main game monetization models include: 1) Premium/Pay-to-Play: One-time purchase for full game access, 2) Free-to-Play (F2P): Free download with in-app purchases, 3) Subscription: Monthly/yearly fees for continued access, 4) Freemium: Basic free version with premium features, 5) In-app purchases: Virtual goods, cosmetics, power-ups, 6) Advertising: Display ads, rewarded videos, sponsorships, 7) Season passes: Time-limited content packages, 8) Loot boxes: Randomized virtual items, 9) Battle passes: Progression-based unlockables.",
+      "context": "Game business models and revenue streams",
+      "difficulty_level": 3,
+      "subscription_tier": "basic",
+      "tags": ["monetization", "business_models", "revenue"],
+      "quality_score": 8.8,
+      "metadata": {
+        "source": "manual_creation",
+        "created_at": "2024-01-01T00:00:00Z",
+        "validated": true,
+        "token_count": 125,
+        "category": "monetization_strategies"
+      }
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "domain": "recipes",
+  "description": "Training data for cooking techniques, recipe development, and culinary arts",
+  "version": "1.0.0",
+  "total_examples": 0,
+  "subscription_tiers": {
+    "basic": {
+      "system_prompt": "You are a cooking assistant. Help beginners with simple recipes, basic techniques, and kitchen fundamentals.",
+      "max_complexity": 3,
+      "target_audience": "home_cooks",
+      "example_topics": ["basic cooking", "simple recipes", "kitchen basics", "ingredient substitutions"]
+    },
+    "professional": {
+      "system_prompt": "You are a culinary expert. Provide advanced cooking techniques, recipe development, and professional kitchen guidance.",
+      "max_complexity": 7,
+      "target_audience": "serious_cooks",
+      "example_topics": ["advanced techniques", "recipe scaling", "flavor pairing", "professional methods"]
+    },
+    "enterprise": {
+      "system_prompt": "You are a culinary strategist. Design restaurant concepts, food service operations, and culinary business solutions.",
+      "max_complexity": 10,
+      "target_audience": "culinary_professionals",
+      "example_topics": ["restaurant operations", "menu engineering", "food cost management", "culinary innovation"]
+    }
+  },
+  "data_categories": [
+    "cooking_techniques",
+    "recipe_development",
+    "ingredient_knowledge",
+    "international_cuisines",
+    "baking_pastry",
+    "dietary_adaptations",
+    "food_presentation",
+    "kitchen_equipment"
+  ],
+  "training_examples": [
+    {
+      "id": "recipe_001",
+      "input": "What are the basic knife cuts every cook should know?",
+      "output": "Essential knife cuts include: 1) Julienne - thin matchstick strips (1/8\" x 1/8\" x 2\"), 2) Brunoise - tiny dice (1/8\" cubes), 3) Small dice - 1/4\" cubes, 4) Medium dice - 1/2\" cubes, 5) Large dice - 3/4\" cubes, 6) Chiffonade - thin ribbon cuts for herbs/leafy vegetables, 7) Bias cut - diagonal slices, 8) Batonnet - stick cuts (1/4\" x 1/4\" x 2-3\"). Consistent cuts ensure even cooking and professional presentation. Practice proper knife grip and cutting technique for safety and efficiency.",
+      "context": "Basic knife skills and cutting techniques",
+      "difficulty_level": 3,
+      "subscription_tier": "basic",
+      "tags": ["knife_skills", "cutting_techniques", "food_prep"],
+      "quality_score": 8.9,
+      "metadata": {
+        "source": "manual_creation",
+        "created_at": "2024-01-01T00:00:00Z",
+        "validated": true,
+        "token_count": 130,
+        "category": "cooking_techniques"
+      }
+    }
+  ]
+}
