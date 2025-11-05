@@ -278,6 +278,11 @@ package-lock.json
 # ============================================
 # LLM Training Data (Large Files) 
 # ============================================
+# Raw source data files (can be very large)
+llm-service/data/raw_sources/**/*
+!llm-service/data/raw_sources/*/
+!llm-service/data/raw_sources/**/README.md
+
 # Training datasets (can be 1GB+)
 llm-service/data/training_sets/**/*.json
 llm-service/data/training_sets/**/*.csv

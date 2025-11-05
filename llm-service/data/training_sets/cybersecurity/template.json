@@ -25,19 +25,20 @@
   },
   "data_categories": [
     "vulnerabilities_cve",
-    "attack_techniques_mitre",
-    "security_frameworks",
-    "incident_response",
-    "penetration_testing",
-    "compliance_standards",
-    "threat_intelligence",
-    "security_tools"
+    "threat_intelligence_mitre",
+    "patch_management_advisories",
+    "security_research_arxiv",
+    "microsoft_security_updates",
+    "ubuntu_security_notices",
+    "nvd_vulnerability_database",
+    "enterprise_security_frameworks"
   ],
   "suggested_sources": [
-    "CVE Database",
-    "MITRE ATT&CK Framework", 
-    "NIST Cybersecurity Framework",
-    "OWASP Top 10",
+    "NVD CVE Database (nvd_cve_2025.json)",
+    "MITRE ATT&CK Framework (mitre_attack_enterprise.json)", 
+    "Ubuntu Security Notices (ubuntu_security_notices.xml)",
+    "ArXiv Cryptography Research (arxiv_crypto_papers.xml)",
+    "Microsoft Security Updates (microsoft_security_updates.json)",
     "Security research papers",
     "Incident response case studies"
   ],
