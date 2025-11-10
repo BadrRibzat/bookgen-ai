@@ -1,8 +1,23 @@
 {
   "domain": "healthtech",
-  "description": "Training data for healthcare technology, medical devices, and digital health solutions",
-  "version": "1.0.0", 
-  "total_examples": 0,
+  "description": "Schema reference documenting how the HealthTech raw corpora map into normalized BookGen AI training examples",
+  "version": "2.0.0",
+  "data_directories": [
+    {"path": "biohacking_longevity_tech/", "summary": "Longevity research and biohacking best practices"},
+    {"path": "breast+cancer+wisconsin+diagnostic/", "summary": "Classical diagnostic dataset for predictive modelling"},
+    {"path": "fitness_tracking_virtual_coaching/", "summary": "Wearable telemetry paired with coaching narratives"},
+    {"path": "mental_health_apps_teletherapy/", "summary": "Digital mental health app content and therapy transcripts"},
+    {"path": "wearable_health_integration/", "summary": "Sensor data schemas for wearable integration"},
+    {"path": "personalized_nutrition/", "summary": "Nutrition recommendation corpora intersecting healthcare"},
+    {"path": "preventive_healthcare_solutions/", "summary": "Preventive care case studies and policy documents"}
+  ],
+  "expected_preprocessing_tasks": [
+    "Extract anonymised patient scenarios from structured CSV files",
+    "Convert clinical dialogues into instruction-response pairs",
+    "Tag each sample with regulatory considerations (e.g., HIPAA, GDPR)",
+    "Balance examples across telemedicine, EHR, wearable, and analytics topics",
+    "Generate compliance-focused enterprise scenarios"
+  ],
   "subscription_tiers": {
     "basic": {
       "system_prompt": "You are a healthtech assistant. Explain healthcare technology concepts clearly for patients and healthcare beginners.",
@@ -23,39 +38,42 @@
       "example_topics": ["digital health strategy", "HIPAA compliance", "population health", "value-based care"]
     }
   },
-  "data_categories": [
-    "telemedicine_platforms",
-    "electronic_health_records",
-    "medical_imaging_ai",
-    "wearable_health_devices",
-    "clinical_decision_support",
-    "health_data_analytics",
-    "medical_device_regulation",
-    "patient_engagement_tools"
-  ],
-  "suggested_sources": [
-    "FDA medical device guidelines",
-    "HIPAA compliance resources",
-    "Healthcare interoperability standards",
-    "Medical AI research papers",
-    "Telemedicine platforms documentation",
-    "Clinical trial technology"
-  ],
+  "training_example_schema": {
+    "id": "string",
+    "input": "string",
+    "output": "string",
+    "context": "string",
+    "difficulty_level": "integer (1-10)",
+    "subscription_tier": "basic | professional | enterprise",
+    "tags": "array of strings",
+    "quality_score": "float 0-10",
+    "metadata": {
+      "source": "dataset identifier",
+      "raw_source_reference": "relative file path",
+      "regulatory_flags": "array of strings",
+      "created_at": "ISO timestamp",
+      "validated": "boolean",
+      "token_count": "integer",
+      "category": "taxonomy label"
+    }
+  },
   "training_examples": [
     {
-      "id": "health_001",
-      "input": "What is telemedicine and what are its main benefits?",
-      "output": "Telemedicine is the remote delivery of healthcare services using telecommunications technology. Patients can consult with healthcare providers via video calls, phone, or messaging platforms. Main benefits include: 1) Improved access to care, especially for rural areas, 2) Reduced travel time and costs, 3) Better management of chronic conditions through remote monitoring, 4) Increased convenience and flexibility, 5) Reduced exposure to infectious diseases, 6) Access to specialists regardless of location.",
-      "context": "Telemedicine overview and advantages",
-      "difficulty_level": 2,
-      "subscription_tier": "basic",
-      "tags": ["telemedicine", "remote_healthcare", "benefits"],
-      "quality_score": 9.0,
+      "id": "healthtech_telemedicine_consult_flow",
+      "input": "Outline a safe triage flow for a telemedicine visit involving wearable device data.",
+      "output": "Begin by authenticating the patient through the portal and verifying device permissions. Pull recent wearable metrics (heart rate variability, sleep quality) and summarise trends for the clinician. Provide symptom questionnaires tailored to the vitals, then escalate to synchronous video consult if anomalies exceed thresholds. Document consent and sync structured notes back to the EHR.",
+      "context": "Telemedicine workflow design",
+      "difficulty_level": 6,
+      "subscription_tier": "professional",
+      "tags": ["telemedicine", "wearables", "triage"],
+      "quality_score": 9.1,
       "metadata": {
-        "source": "manual_creation",
-        "created_at": "2024-01-01T00:00:00Z",
-        "validated": true,
-        "token_count": 105,
+        "source": "wearable_health_device_integration",
+        "raw_source_reference": "wearable_health_device_integration/wearable_triage_notes.json",
+        "regulatory_flags": ["HIPAA"],
+        "created_at": "2025-11-10T00:00:00Z",
+        "validated": false,
+        "token_count": 140,
         "category": "telemedicine_platforms"
       }
     }

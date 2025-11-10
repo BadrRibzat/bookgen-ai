@@ -1,8 +1,24 @@
 {
   "domain": "ai_ml",
-  "description": "Training data for artificial intelligence and machine learning domain",
-  "version": "1.0.0",
-  "total_examples": 0,
+  "description": "Schema reference for processed AI & ML training data generated from the collected raw datasets",
+  "version": "2.0.0",
+  "data_directories": [
+    {"path": "code_generation_datasets/", "summary": "Programming benchmarks (HumanEval, CodeAlpaca) for code reasoning prompts"},
+    {"path": "instruction_tuning_corpora/", "summary": "Open-source instruction-following datasets such as Dolly and HHRLHF"},
+    {"path": "summarization_and_knowledge_distillation/", "summary": "Research distillation corpora and benchmark summaries"},
+    {"path": "reasoning_and_truthfulness_benchmarks/", "summary": "Critical reasoning datasets focused on alignment and factuality"},
+    {"path": "mental_health_teletherapy/", "summary": "Carefully curated empathetic dialogue transcripts for responsible model tuning"},
+    {"path": "wearable_health_integration/", "summary": "Cross-domain datasets intersecting AI with biosignal interpretation"},
+    {"path": "personalized_nutrition/", "summary": "Nutritional recommender datasets overlapping AI decision support"},
+    {"path": "tabular_sources/", "summary": "Structured CSV resources for feature engineering exemplars"}
+  ],
+  "expected_preprocessing_tasks": [
+    "Convert parquet/CSV records into instruction-response JSONL",
+    "Tag each example with difficulty level and subscription tier",
+    "Deduplicate overlapping prompts across sources",
+    "Anonymize any personal health-related information",
+    "Generate evaluation splits (train/dev/test)"
+  ],
   "subscription_tiers": {
     "basic": {
       "system_prompt": "You are an AI/ML tutor. Explain concepts clearly for beginners with practical examples and simple analogies.",
@@ -23,39 +39,40 @@
       "example_topics": ["AI strategy", "model governance", "ethical AI", "AI infrastructure"]
     }
   },
-  "data_categories": [
-    "algorithms_fundamentals",
-    "deep_learning",
-    "natural_language_processing",
-    "computer_vision",
-    "reinforcement_learning",
-    "mlops_deployment",
-    "ai_ethics",
-    "research_papers"
-  ],
-  "suggested_sources": [
-    "ArXiv AI/ML papers",
-    "Hugging Face documentation",
-    "TensorFlow/PyTorch tutorials",
-    "Kaggle competitions",
-    "AI research blogs",
-    "University ML courses"
-  ],
+  "training_example_schema": {
+    "id": "string",
+    "input": "string",
+    "output": "string",
+    "context": "string",
+    "difficulty_level": "integer (1-10)",
+    "subscription_tier": "basic | professional | enterprise",
+    "tags": "array of strings",
+    "quality_score": "float 0-10",
+    "metadata": {
+      "source": "dataset identifier",
+      "raw_source_reference": "relative file path",
+      "created_at": "ISO timestamp",
+      "validated": "boolean",
+      "token_count": "integer",
+      "category": "taxonomy label"
+    }
+  },
   "training_examples": [
     {
-      "id": "aiml_001",
-      "input": "Explain the difference between supervised and unsupervised learning",
-      "output": "Supervised learning uses labeled training data where the algorithm learns from input-output pairs to make predictions on new data. Examples include classification (predicting categories) and regression (predicting continuous values). Unsupervised learning finds patterns in data without labeled examples, such as clustering (grouping similar data points) or dimensionality reduction. The key difference is that supervised learning has a 'teacher' (labels) while unsupervised learning discovers hidden structures independently.",
+      "id": "aiml_foundations_supervised_v_unsupervised",
+      "input": "Explain the difference between supervised and unsupervised learning for a coding bootcamp student.",
+      "output": "Supervised learning uses labelled datasets that pair inputs with the correct answers, allowing models to learn direct mappings—for example, mapping house features to sale prices. Unsupervised learning works without labels, finding hidden structure in the data such as grouping customers into segments based on purchasing behaviour. In supervised learning the goal is prediction, while in unsupervised learning the goal is discovery.",
       "context": "Machine learning fundamentals",
-      "difficulty_level": 2,
+      "difficulty_level": 3,
       "subscription_tier": "basic",
       "tags": ["supervised_learning", "unsupervised_learning", "fundamentals"],
-      "quality_score": 8.5,
+      "quality_score": 9.0,
       "metadata": {
-        "source": "manual_creation",
-        "created_at": "2024-01-01T00:00:00Z",
-        "validated": true,
-        "token_count": 110,
+        "source": "instruction_tuning_corpora/databricks_databricks_dolly_15k",
+        "raw_source_reference": "instruction_tuning_corpora/databricks_databricks_dolly_15k/databricks-dolly-15k.jsonl",
+        "created_at": "2025-11-10T00:00:00Z",
+        "validated": false,
+        "token_count": 118,
         "category": "algorithms_fundamentals"
       }
     }

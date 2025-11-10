@@ -1,63 +1,79 @@
 {
   "domain": "cybersecurity",
-  "description": "Training data for cybersecurity domain - vulnerabilities, threats, security practices",
-  "version": "1.0.0",
-  "total_examples": 0,
+  "description": "Schema reference for transforming raw cybersecurity corpora into BookGen AI training examples",
+  "version": "2.0.0",
+  "data_directories": [
+    {"path": "enterprise-attack.json", "summary": "Full MITRE ATT&CK enterprise matrix bundle"},
+    {"path": "threat_intelligence_feeds/", "summary": "Government and vendor threat feeds in JSONL"},
+    {"path": "threat_detection_instruction_tuning/", "summary": "Incident response and SOC playbook dialogues"},
+    {"path": "malware_intelligence_corpora/", "summary": "Malware behaviour and reverse engineering notes"},
+    {"path": "phishing_url_detection/", "summary": "URL reputation datasets for phishing detection"},
+    {"path": "iot_blockchain_security_dataset.csv", "summary": "Emerging tech vulnerabilities in IoT and blockchain"}
+  ],
+  "expected_preprocessing_tasks": [
+    "Normalize MITRE ATT&CK bundle into technique-specific prompts",
+    "Aggregate CVE/CVSS data with severity-based tier assignment",
+    "Clean and deduplicate threat feed records",
+    "Generate incident response walkthroughs from instruction datasets",
+    "Redact any PII contained in breach reports"
+  ],
   "subscription_tiers": {
     "basic": {
-      "system_prompt": "You are a cybersecurity assistant. Provide clear, basic explanations suitable for beginners learning about security concepts.",
+      "system_prompt": "You are a cybersecurity assistant. Provide clear, beginner-friendly guidance on staying secure.",
       "max_complexity": 3,
       "target_audience": "beginners",
       "example_topics": ["password security", "phishing awareness", "basic firewall concepts"]
     },
     "professional": {
-      "system_prompt": "You are a cybersecurity expert. Provide detailed, technical responses with implementation details and security frameworks.",
+      "system_prompt": "You are a cybersecurity specialist. Share detailed technical mitigation steps and tooling guidance.",
       "max_complexity": 7,
       "target_audience": "security_professionals",
-      "example_topics": ["penetration testing", "vulnerability assessment", "incident response", "SIEM configuration"]
+      "example_topics": ["penetration testing", "incident response", "SIEM content", "cloud security"]
     },
     "enterprise": {
-      "system_prompt": "You are a senior cybersecurity consultant. Provide enterprise-level strategic guidance with compliance and risk management focus.",
+      "system_prompt": "You are a cybersecurity strategist. Provide governance, compliance, and risk management insight for executives.",
       "max_complexity": 10,
       "target_audience": "enterprise_leaders",
       "example_topics": ["security architecture", "compliance frameworks", "risk assessment", "security governance"]
     }
   },
-  "data_categories": [
-    "vulnerabilities_cve",
-    "threat_intelligence_mitre",
-    "patch_management_advisories",
-    "security_research_arxiv",
-    "microsoft_security_updates",
-    "ubuntu_security_notices",
-    "nvd_vulnerability_database",
-    "enterprise_security_frameworks"
-  ],
-  "suggested_sources": [
-    "NVD CVE Database (nvd_cve_2025.json)",
-    "MITRE ATT&CK Framework (mitre_attack_enterprise.json)", 
-    "Ubuntu Security Notices (ubuntu_security_notices.xml)",
-    "ArXiv Cryptography Research (arxiv_crypto_papers.xml)",
-    "Microsoft Security Updates (microsoft_security_updates.json)",
-    "Security research papers",
-    "Incident response case studies"
-  ],
+  "training_example_schema": {
+    "id": "string",
+    "input": "string",
+    "output": "string",
+    "context": "string",
+    "difficulty_level": "integer (1-10)",
+    "subscription_tier": "basic | professional | enterprise",
+    "tags": "array of strings",
+    "quality_score": "float 0-10",
+    "metadata": {
+      "source": "dataset identifier",
+      "raw_source_reference": "relative file path",
+      "cvss_score": "float (if applicable)",
+      "created_at": "ISO timestamp",
+      "validated": "boolean",
+      "token_count": "integer",
+      "category": "taxonomy label"
+    }
+  },
   "training_examples": [
     {
-      "id": "cyber_001",
-      "input": "What is a SQL injection attack and how can it be prevented?",
-      "output": "SQL injection is a code injection technique that attackers use to exploit vulnerabilities in web applications. It occurs when user input is improperly validated, allowing malicious SQL code to be executed on the database. Prevention methods include: 1) Using parameterized queries/prepared statements, 2) Input validation and sanitization, 3) Least privilege database access, 4) Web application firewalls, 5) Regular security testing.",
-      "context": "Web application security fundamentals",
-      "difficulty_level": 3,
-      "subscription_tier": "basic",
-      "tags": ["sql_injection", "web_security", "prevention"],
-      "quality_score": 9.0,
+      "id": "cyber_threat_mitre_t1055",
+      "input": "Explain MITRE ATT&CK technique T1055 (Process Injection) and outline defensive controls.",
+      "output": "Technique T1055 describes adversaries injecting code into legitimate processes to evade detection. Common implementations include DLL injection and thread hijacking. Defenders should enable memory integrity protections, monitor for anomalous process handle access, and deploy EDR solutions capable of detecting reflective loading attempts.",
+      "context": "MITRE ATT&CK technique breakdown",
+      "difficulty_level": 7,
+      "subscription_tier": "professional",
+      "tags": ["mitre", "process_injection", "defensive_controls"],
+      "quality_score": 9.2,
       "metadata": {
-        "source": "manual_creation",
-        "created_at": "2024-01-01T00:00:00Z",
-        "validated": true,
-        "token_count": 120,
-        "category": "vulnerabilities_cve"
+        "source": "enterprise-attack.json",
+        "raw_source_reference": "enterprise-attack.json#objects[42]",
+        "cvss_score": null,
+        "created_at": "2025-11-10T00:00:00Z",
+        "validated": false,
+        "token_count": 132,
+        "category": "attack_techniques_mitre"
       }
     }
   ]

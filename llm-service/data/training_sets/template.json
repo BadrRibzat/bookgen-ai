@@ -1,39 +1,38 @@
-[
-  {
-    "prompt": "Write an introduction chapter about AI machine learning for beginners",
-    "completion": "Artificial Intelligence and Machine Learning represent a transformative era in technology. At its core, machine learning enables computers to learn and improve from experience without being explicitly programmed for every task. This revolutionary approach has applications spanning from recommendation systems that suggest your next favorite movie to autonomous vehicles navigating complex city streets.\n\nFor beginners, it's helpful to think of machine learning as teaching computers to recognize patterns in data, much like how humans learn to recognize faces or predict weather patterns based on cloud formations. The field encompasses various techniques including supervised learning, where we provide examples with correct answers, and unsupervised learning, where algorithms discover hidden patterns in data without guidance.\n\nThis foundational understanding opens doors to exploring more advanced concepts like neural networks, deep learning, and the ethical considerations that guide responsible AI development. Whether you're interested in improving business processes, advancing scientific research, or creating innovative applications, machine learning provides powerful tools to turn data into actionable insights.",
+{
+  "schema_version": "2.0.0",
+  "description": "Canonical example of the normalized instruction dataset structure used across all BookGen AI domains.",
+  "example": {
+    "domain": "ai_ml",
+    "subscription_tier": "professional",
+    "difficulty_level": 6,
+    "input": "Walk through how a data scientist should evaluate drift in a production model.",
+    "output": "Start by instrumenting the production scoring service to log predictions with relevant features and timestamps. Compute population stability index (PSI) between training and production distributions weekly; a PSI above 0.25 indicates significant drift. Complement PSI with KL divergence for continuous features. When drift is detected, trigger a retraining workflow using the latest labelled data and update model cards with the monitoring results.",
+    "context": "MLOps monitoring scenario",
+    "tags": ["mlops", "model_drift", "monitoring"],
+    "quality_score": 9.3,
     "metadata": {
-      "quality_score": 0.95,
-      "chapter_type": "introduction",
-      "target_audience": "beginner",
-      "word_count": 185,
-      "tags": ["AI", "machine learning", "introduction", "beginner"],
-      "data_gov_dataset": "example_dataset_id",
-      "training_weight": 1.0
+      "raw_source_reference": "ai_ml/instruction_tuning_corpora/mosaicml_dolly_hhrlhf/dataset.jsonl",
+      "source": "curated_instruction_merge",
+      "token_count": 165,
+      "created_at": "2025-11-10T00:00:00Z",
+      "validated": false
     }
   },
-  {
-    "prompt": "Explain the concept of neural networks in simple terms",
-    "completion": "Neural networks are computational models inspired by the way the human brain processes information. Just as our brain contains billions of interconnected neurons that work together to process thoughts and make decisions, artificial neural networks consist of interconnected nodes (called artificial neurons) that process and transmit information.\n\nThink of a neural network as a sophisticated pattern recognition system. Each artificial neuron receives input signals, processes them using mathematical functions, and passes the results to other neurons in the network. Through this interconnected structure, the network can learn to recognize complex patterns, make predictions, and solve problems that would be difficult to program using traditional methods.\n\nThe power of neural networks lies in their ability to learn from examples. By showing the network many examples of input-output pairs, it gradually adjusts the connections between neurons to improve its performance. This learning process, called training, allows neural networks to excel at tasks like image recognition, natural language processing, and predictive analytics.",
+  "field_descriptions": {
+    "domain": "Domain identifier aligned with application IDs (e.g., ai_ml, cybersecurity).",
+    "subscription_tier": "Audience segment controlling tone (basic, professional, enterprise).",
+    "difficulty_level": "Integer 1-10 describing complexity.",
+    "input": "User instruction or prompt.",
+    "output": "High-quality answer the model should learn to reproduce.",
+    "context": "Optional background notes to help evaluators interpret the sample.",
+    "tags": "Topic taxonomy facilitating search and curriculum balancing.",
+    "quality_score": "Manual or automated rating from 0-10.",
     "metadata": {
-      "quality_score": 0.92,
-      "chapter_type": "concept_explanation",
-      "target_audience": "beginner",
-      "word_count": 178,
-      "tags": ["neural networks", "AI", "machine learning", "explanation"],
-      "training_weight": 1.2
-    }
-  },
-  {
-    "prompt": "Describe the applications of machine learning in healthcare",
-    "completion": "Machine learning is revolutionizing healthcare by enabling more accurate diagnoses, personalized treatments, and improved patient outcomes. This technology analyzes vast amounts of medical data to identify patterns that might be invisible to human practitioners, leading to breakthrough discoveries and enhanced medical care.\n\nIn medical imaging, machine learning algorithms can detect early signs of diseases like cancer, often with greater accuracy than traditional methods. These systems analyze X-rays, MRIs, and CT scans to identify subtle abnormalities that might indicate the presence of tumors, fractures, or other conditions. Early detection through AI-assisted imaging can significantly improve treatment success rates and save lives.\n\nDrug discovery represents another promising application, where machine learning accelerates the development of new medications. By analyzing molecular structures and predicting how different compounds might interact with human biology, AI can identify potential drug candidates faster and more cost-effectively than traditional research methods. This acceleration could bring life-saving treatments to patients years sooner than conventional approaches.\n\nPersonalized medicine is perhaps the most exciting frontier, where machine learning analyzes individual patient data including genetic information, medical history, and lifestyle factors to recommend tailored treatment plans. This approach recognizes that each patient is unique and may respond differently to various treatments, leading to more effective and safer healthcare interventions.",
-    "metadata": {
-      "quality_score": 0.94,
-      "chapter_type": "applications",
-      "target_audience": "intermediate",
-      "word_count": 234,
-      "tags": ["healthcare", "applications", "medical imaging", "drug discovery", "personalized medicine"],
-      "training_weight": 1.3
+      "raw_source_reference": "Link back to the original dataset file.",
+      "source": "Dataset name or generation pipeline.",
+      "token_count": "Approximate token length for batching.",
+      "created_at": "ISO timestamp when the example was generated.",
+      "validated": "Boolean flag set by the QA workflow."
     }
   }
-]
+}

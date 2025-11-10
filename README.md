@@ -437,6 +437,31 @@ python3 test_cybersecurity_data.py
 - **Quality Validation**: Comprehensive data structure and content validation
 - **Production Ready**: Fully processed and validated for LLM training
 
+### 📦 Domain Data Inventory (Nov 2025)
+| Domain | Directory | Raw Volume | Primary Formats | Highlight Sources |
+|--------|-----------|------------|-----------------|-------------------|
+| AI & ML | `ai_ml/` | 148 MB | `.parquet`, `.txt`, `.jsonl`, `.csv` | HumanEval, CodeAlpaca, Dolly, reasoning benchmarks |
+| Automation | `automation/` | 43 MB | `.json` | RPA / workflow automation JSON corpora |
+| Creator Economy | `creator_economy/` | 4 MB | `.csv`, `.json`, `.html` | Platform analytics & monetisation datasets |
+| Cybersecurity | `cybersecurity/` | 1.0 GB | `.jsonl`, `.parquet`, `.csv`, `.json` | MITRE ATT&CK, threat feeds, phishing detection |
+| Data Analytics | `data_analytics/` | 395 MB | `.csv`, `.json`, `.txt`, `.xlsx` | BI dashboards, KPI benchmarks, storytelling corpora |
+| E-commerce | `ecommerce/` | 487 MB | `.jpg`, `.csv`, `.json` | Retail product imagery & transactional datasets |
+| Gaming | `gaming/` | 3.8 GB | `.csv`, `.json` | Player telemetry, live ops analytics |
+| HealthTech | `healthtech/` | 9.0 GB | `.csv`, `.txt`, `.json`, `.parquet` | Wearables, telehealth transcripts, clinical datasets |
+| Kids & Parenting | `kids_parenting/` | 3.7 MB | `.csv`, `.docx` | Parenting guides & educational content |
+| Nutrition | `nutrition/` | 1.5 GB | `.csv`, `.xlsx`, `.tsv`, `.json` | Dietary datasets, supplementation research |
+| Recipes | `recipes/` | 2.2 GB | `.csv` | High-volume recipe & ingredient corpora |
+| Web3 | `web3/` | 2.2 MB | `.csv` | Blockchain transaction & token analytics |
+
+> **Note:** All high-volume raw assets are ignored from Git by default. Only metadata, templates, and processing scripts are tracked.
+
+### 🗺️ Processing Roadmap
+1. **Domain-specific ETL Scripts** – Extend `process_cyber_data_fixed.py` patterns for each domain (AI/ML, automation, healthtech, etc.).
+2. **Format Normalisation** – Convert CSV/Parquet into instruction-response JSONL, extract text from DOCX/HTML, and add captions or discard non-text assets (e.g., product images).
+3. **Quality Labelling** – Apply tier/difficulty scores, deduplicate prompts, and redact sensitive information (especially healthcare data).
+4. **Validation Pass** – Use `validate_data.py --domain <domain>` to confirm schema compliance and generate quality metrics.
+5. **Training Execution** – Schedule domain training jobs once validated datasets reach coverage goals; log checkpoints and evaluation metrics.
+
 ---
 
 ## 🔐 Environment Configuration
