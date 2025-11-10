@@ -22,10 +22,8 @@ httpx==0.26.0
 # Custom LLM Development Stack
 # ============================================
 
-# Core ML Frameworks
+# Core ML Frameworks (CPU-friendly defaults)
 torch>=2.0.0,<3.0.0  # PyTorch for model training
-torchvision>=0.15.0   # Additional vision utilities
-torchaudio>=2.0.0     # Audio processing utilities
 
 # Hugging Face Ecosystem
 transformers>=4.35.0  # Pre-trained models and tokenizers
@@ -46,9 +44,9 @@ numpy>=1.24.0         # Numerical computing
 matplotlib>=3.7.0     # Plotting and visualization
 seaborn>=0.12.0       # Statistical visualization
 
-# Model Optimization and Quantization
-bitsandbytes>=0.41.0  # 8-bit and 4-bit quantization
-optimum>=1.13.0       # Model optimization
+# Model Optimization and Quantization (GPU-optional)
+# bitsandbytes>=0.41.0  # Requires GPU; uncomment if a compatible accelerator is available
+# optimum>=1.13.0       # Additional optimizations for accelerator-backed deployments
 
 # PDF Generation and Document Processing
 reportlab>=4.0.0      # PDF generation
