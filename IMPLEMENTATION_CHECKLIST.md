@@ -3,175 +3,116 @@
 ## ✅ Files Created - Track Your Progress
 
 ### 🔧 Configuration Files
-- [ ] `.gitignore`
-- [ ] `README.md`
-- [ ] `docker-compose.yml`
-- [ ] `SETUP_COMMANDS.md`
-- [ ] `IMPLEMENTATION_CHECKLIST.md` (this file)
+- [x] `.gitignore`
+- [x] `README.md`
+- [x] `docker-compose.yml`
+- [x] `SETUP_COMMANDS.md`
+- [x] `IMPLEMENTATION_CHECKLIST.md` (this file)
 
 ### 📜 Scripts
-- [ ] `scripts/setup.sh`
-- [ ] `scripts/seed-db.sh`
-- [ ] `scripts/run-tests.sh`
+- [x] `scripts/setup.sh`
+- [x] `scripts/seed-db.sh`
+- [x] `scripts/run-tests.sh`
 
 ### 🔙 Backend - Configuration
-- [ ] `backend/.env.example`
-- [ ] `backend/requirements.txt`
-- [ ] `backend/Dockerfile`
-- [ ] `backend/manage.py`
-- [ ] `backend/config/__init__.py`
-- [ ] `backend/config/settings.py`
-- [ ] `backend/config/urls.py`
-- [ ] `backend/config/wsgi.py`
-- [ ] `backend/config/celery.py`
+- [x] `backend/.env.example`
+- [x] `backend/requirements.txt`
+- [x] `backend/Dockerfile`
+- [x] `backend/manage.py`
+- [x] `backend/config/__init__.py`
+- [x] `backend/config/settings.py`
+- [x] `backend/config/urls.py`
+- [x] `backend/config/wsgi.py`
+- [x] `backend/config/celery.py`
 
 ### 🔙 Backend - Users App
-- [ ] `backend/apps/users/__init__.py`
-- [ ] `backend/apps/users/models.py`
-- [ ] `backend/apps/users/serializers.py`
-- [ ] `backend/apps/users/views.py`
-- [ ] `backend/apps/users/services.py`
-- [ ] `backend/apps/users/urls/__init__.py`
-- [ ] `backend/apps/users/urls/auth_urls.py`
-- [ ] `backend/apps/users/urls/user_urls.py`
+- [x] `backend/apps/users/__init__.py`
+- [x] `backend/apps/users/models.py`
+- [x] `backend/apps/users/serializers.py`
+- [x] `backend/apps/users/views.py`
+- [x] `backend/apps/users/services.py`
+- [x] `backend/apps/users/urls/__init__.py`
+- [x] `backend/apps/users/urls/auth_urls.py`
+- [x] `backend/apps/users/urls/user_urls.py`
 
 ### 🔙 Backend - Core App
-- [ ] `backend/apps/core/__init__.py`
-- [ ] `backend/apps/core/exceptions.py`
-- [ ] `backend/apps/core/urls.py`
-- [ ] `backend/apps/core/management/commands/seed_domains.py`
-- [ ] `backend/apps/core/management/commands/create_test_users.py`
+- [x] `backend/apps/core/__init__.py`
+- [x] `backend/apps/core/exceptions.py`
+- [x] `backend/apps/core/urls.py`
+- [x] `backend/apps/core/management/commands/seed_domains.py`
+- [x] `backend/apps/core/management/commands/create_test_users.py`
 
 ### 🔙 Backend - Books App
-- [ ] `backend/apps/books/__init__.py`
-- [ ] `backend/apps/books/urls.py`
+- [x] `backend/apps/books/__init__.py`
+- [x] `backend/apps/books/urls.py`
 
 ### 🔙 Backend - Email Templates
-- [ ] `backend/templates/emails/verify_email.txt`
-- [ ] `backend/templates/emails/verify_email.html`
-- [ ] `backend/templates/emails/password_reset.txt`
-- [ ] `backend/templates/emails/password_reset.html`
+- [x] `backend/templates/emails/verify_email.txt`
+- [x] `backend/templates/emails/verify_email.html`
+- [x] `backend/templates/emails/password_reset.txt`
+- [x] `backend/templates/emails/password_reset.html`
 
 ### 🎨 Frontend - Configuration
-- [ ] `frontend/.env.example`
-- [ ] `frontend/package.json`
-- [ ] `frontend/next.config.js`
-- [ ] `frontend/tsconfig.json`
-- [ ] `frontend/tailwind.config.ts`
-- [ ] `frontend/Dockerfile`
+- [x] `frontend/.env.example`
+- [x] `frontend/package.json`
+- [x] `frontend/next.config.js`
+- [x] `frontend/tsconfig.json`
+- [x] `frontend/tailwind.config.ts`
+- [x] `frontend/Dockerfile`
 
 ### 🎨 Frontend - Shared Types
-- [ ] `shared/types/index.ts`
+- [x] `shared/types/index.ts`
 
 ### 🎨 Frontend - API Layer
-- [ ] `frontend/lib/api/client.ts`
-- [ ] `frontend/lib/api/auth.ts`
-- [ ] `frontend/lib/api/users.ts`
+- [x] `frontend/lib/api/client.ts`
+- [x] `frontend/lib/api/auth.ts`
+- [x] `frontend/lib/api/users.ts`
 
 ### 🎨 Frontend - Validation
-- [ ] `frontend/lib/validation/auth.schema.ts`
+- [x] `frontend/lib/validation/auth.schema.ts`
 
 ### 🎨 Frontend - Context
-- [ ] `frontend/lib/contexts/AuthContext.tsx`
+- [x] `frontend/lib/contexts/AuthContext.tsx`
 
 ### 🎨 Frontend - Utilities
-- [ ] `frontend/lib/utils/index.ts`
+- [x] `frontend/lib/utils/index.ts`
 
 ### 🎨 Frontend - UI Components
-- [ ] `frontend/components/ui/Button.tsx`
-- [ ] `frontend/components/ui/Input.tsx`
-- [ ] `frontend/components/ui/Alert.tsx`
+- [x] `frontend/components/ui/Button.tsx`
+- [x] `frontend/components/ui/Input.tsx`
+- [x] `frontend/components/ui/Alert.tsx`
 
 ### 🎨 Frontend - Auth Components
-- [ ] `frontend/components/auth/LoginForm.tsx`
-- [ ] `frontend/components/auth/RegisterForm.tsx`
+- [x] `frontend/components/auth/LoginForm.tsx`
+- [x] `frontend/components/auth/RegisterForm.tsx`
 
 ### 🎨 Frontend - App Pages
-- [ ] `frontend/app/layout.tsx`
-- [ ] `frontend/app/globals.css`
-- [ ] `frontend/app/page.tsx`
-- [ ] `frontend/app/auth/login/page.tsx`
-- [ ] `frontend/app/auth/register/page.tsx`
-- [ ] `frontend/app/dashboard/page.tsx`
+- [x] `frontend/app/layout.tsx`
+- [x] `frontend/app/globals.css`
+- [x] `frontend/app/page.tsx`
+- [x] `frontend/app/auth/login/page.tsx`
+- [x] `frontend/app/auth/register/page.tsx`
+- [x] `frontend/app/dashboard/page.tsx`
 
 ### 🤖 LLM Service
-- [ ] `llm-service/.env.example`
-- [ ] `llm-service/requirements.txt`
-- [ ] `llm-service/Dockerfile`
-- [ ] `llm-service/app/__init__.py`
-- [ ] `llm-service/app/main.py`
+- [x] `llm-service/.env.example`
+- [x] `llm-service/requirements.txt`
+- [x] `llm-service/Dockerfile`
+- [x] `llm-service/app/__init__.py`
+- [x] `llm-service/app/main.py`
 
 ---
 
 ## 📝 Quick Copy Commands
 
-Run these to create all empty files with proper structure:
+Run these to scaffold the remaining frontend library files:
 
 ```bash
-# Shared types
-touch shared/types/index.ts
-
-# Scripts (already executable)
-touch scripts/setup.sh scripts/seed-db.sh scripts/run-tests.sh
-
-# Backend files
-touch backend/manage.py
-touch backend/config/__init__.py backend/config/settings.py
-touch backend/config/urls.py backend/config/wsgi.py backend/config/celery.py
-
-# Users app
-mkdir -p backend/apps/users/urls
-touch backend/apps/users/models.py backend/apps/users/serializers.py
-touch backend/apps/users/views.py backend/apps/users/services.py
-touch backend/apps/users/urls/__init__.py backend/apps/users/urls/auth_urls.py
-touch backend/apps/users/urls/user_urls.py
-
-# Core app
-mkdir -p backend/apps/core/management/commands
-touch backend/apps/core/exceptions.py backend/apps/core/urls.py
-touch backend/apps/core/management/commands/seed_domains.py
-touch backend/apps/core/management/commands/create_test_users.py
-
-# Books app
-touch backend/apps/books/urls.py
-
-# Email templates
-mkdir -p backend/templates/emails
-touch backend/templates/emails/verify_email.txt
-touch backend/templates/emails/verify_email.html
-touch backend/templates/emails/password_reset.txt
-touch backend/templates/emails/password_reset.html
-
-# Frontend API
-touch frontend/lib/api/client.ts frontend/lib/api/auth.ts
-touch frontend/lib/api/users.ts
-
-# Frontend validation
+mkdir -p frontend/lib/api frontend/lib/validation frontend/lib/contexts frontend/lib/utils
+touch frontend/lib/api/client.ts frontend/lib/api/auth.ts frontend/lib/api/users.ts
 touch frontend/lib/validation/auth.schema.ts
-
-# Frontend contexts
 touch frontend/lib/contexts/AuthContext.tsx
-
-# Frontend utils
 touch frontend/lib/utils/index.ts
-
-# Frontend UI components
-touch frontend/components/ui/Button.tsx frontend/components/ui/Input.tsx
-touch frontend/components/ui/Alert.tsx
-
-# Frontend auth components
-touch frontend/components/auth/LoginForm.tsx
-touch frontend/components/auth/RegisterForm.tsx
-
-# Frontend pages
-touch frontend/app/layout.tsx frontend/app/globals.css
-touch frontend/app/page.tsx
-touch frontend/app/auth/login/page.tsx
-touch frontend/app/auth/register/page.tsx
-touch frontend/app/dashboard/page.tsx
-
-# LLM Service
-touch llm-service/app/main.py
 ```
 
 ---
@@ -261,7 +202,7 @@ Navigate to http://localhost:3000 and try:
 
 ## 🐛 Known Issues & TODOs
 
-- [ ] Add PostCSS config file for Tailwind
+- [x] Implement frontend API client layer (`frontend/lib/api`)
 - [ ] Add ESLint config for frontend
 - [ ] Add Prettier config
 - [ ] Add Jest config for tests
@@ -279,15 +220,14 @@ Navigate to http://localhost:3000 and try:
 
 1. **Test Current Implementation**
    - Register a new user
-   - Test login/logout
-   - Verify dashboard access
+   - Trigger verification & password-reset emails (Brevo)
+   - Test login/logout and dashboard access
    - Check API endpoints in Swagger
 
-2. **Add Missing Configs** (if needed)
-   - PostCSS config
-   - ESLint config
-   - Jest config
-   - Playwright config
+2. **Bootstrap Frontend Service Layer**
+   - Implement `frontend/lib/api/*` clients
+   - Add `AuthContext` for shared auth state
+   - Create validation schemas and shared utils
 
 3. **Implement Email Verification Page**
    - Create `/auth/verify-email` page
@@ -300,9 +240,9 @@ Navigate to http://localhost:3000 and try:
    - Password reset form
 
 5. **Phase 2: User Profile**
-   - Profile view page
-   - Profile edit functionality
-   - Analytics dashboard
+   - Profile view page backed by new API client
+   - Profile edit functionality & validation
+   - Analytics dashboard and recent activity
    - Books history list
 
 ---
@@ -329,5 +269,5 @@ If you encounter issues:
 
 ---
 
-**Last Updated**: {Current Date}
+**Last Updated**: November 22, 2025
 **Implementation Status**: Phase 1 Complete (Authentication)

@@ -47,11 +47,13 @@ class AuthService:
             message = render_to_string('emails/verify_email.txt', context)
             html_message = render_to_string('emails/verify_email.html', context)
             
+            sender = getattr(settings, 'BREVO_TRANSACTIONAL_SENDER', settings.DEFAULT_FROM_EMAIL)
+
             send_mail(
                 subject=subject,
                 message=message,
                 html_message=html_message,
-                from_email=settings.DEFAULT_FROM_EMAIL,
+                from_email=sender,
                 recipient_list=[user.email],
                 fail_silently=False,
             )
@@ -137,7 +139,7 @@ class AuthService:
                 subject=subject,
                 message=message,
                 html_message=html_message,
-                from_email=settings.DEFAULT_FROM_EMAIL,
+                from_email=getattr(settings, 'BREVO_TRANSACTIONAL_SENDER', settings.DEFAULT_FROM_EMAIL),
                 recipient_list=[user.email],
                 fail_silently=False,
             )
@@ -184,8 +186,8 @@ class AuthService:
         try:
             send_mail(
                 subject='Your BookGen-AI password has been changed',
-                message=f'Your password was successfully changed. If you did not make this change, please contact support immediately.',
-                from_email=settings.DEFAULT_FROM_EMAIL,
+                message='Your password was successfully changed. If you did not make this change, please contact support immediately.',
+                from_email=getattr(settings, 'BREVO_TRANSACTIONAL_SENDER', settings.DEFAULT_FROM_EMAIL),
                 recipient_list=[user.email],
                 fail_silently=True,
             )
