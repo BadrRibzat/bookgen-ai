@@ -12,7 +12,7 @@ services:
       - "27017:27017"
     environment:
       MONGO_INITDB_ROOT_USERNAME: bookgen_admin
-      MONGO_INITDB_ROOT_PASSWORD: bookgen_password
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_PASSWORD:-changeme}
       MONGO_INITDB_DATABASE: bookgen
     volumes:
       - mongodb_data:/data/db
@@ -61,7 +61,8 @@ services:
       - ./backend/.env
     environment:
       - DEBUG=True
-      - DATABASE_URL=mongodb://bookgen_admin:bookgen_password@mongodb:27017/bookgen?authSource=admin
+      - MONGODB_PASSWORD=${MONGODB_PASSWORD:-changeme}
+      - DATABASE_URL=mongodb://bookgen_admin:${MONGODB_PASSWORD:-changeme}@mongodb:27017/bookgen?authSource=admin
       - REDIS_URL=redis://:bookgen_redis_password@redis:6379/0
       - CELERY_BROKER_URL=redis://:bookgen_redis_password@redis:6379/0
     volumes:
@@ -92,7 +93,7 @@ services:
     env_file:
       - ./backend/.env
     environment:
-      - DATABASE_URL=mongodb://bookgen_admin:bookgen_password@mongodb:27017/bookgen?authSource=admin
+      - DATABASE_URL=mongodb://bookgen_admin:${MONGODB_PASSWORD:-changeme}@mongodb:27017/bookgen?authSource=admin
       - REDIS_URL=redis://:bookgen_redis_password@redis:6379/0
       - CELERY_BROKER_URL=redis://:bookgen_redis_password@redis:6379/0
     volumes:
@@ -118,7 +119,7 @@ services:
     env_file:
       - ./backend/.env
     environment:
-      - DATABASE_URL=mongodb://bookgen_admin:bookgen_password@mongodb:27017/bookgen?authSource=admin
+      - DATABASE_URL=mongodb://bookgen_admin:${MONGODB_PASSWORD:-changeme}@mongodb:27017/bookgen?authSource=admin
       - REDIS_URL=redis://:bookgen_redis_password@redis:6379/0
       - CELERY_BROKER_URL=redis://:bookgen_redis_password@redis:6379/0
     volumes:
@@ -147,6 +148,12 @@ services:
     volumes:
       - ./llm-service:/app
       - llm_data:/app/data
+      - llm_model_cache:/app/.cache/huggingface
+    environment:
+      - LLM_MODEL_PATH=/app/models/final_model
+      - LLM_MODEL_METADATA=/app/models/final_model/metrics.json
+      - BASE_MODEL_ID=distilgpt2
+      - TRANSFORMERS_CACHE=/app/.cache/huggingface
     networks:
       - bookgen_network
     command: uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload
@@ -192,6 +199,8 @@ volumes:
   backend_media:
     driver: local
   llm_data:
+    driver: local
+  llm_model_cache:
     driver: local
 
 # ============================================

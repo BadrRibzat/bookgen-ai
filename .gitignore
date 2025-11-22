@@ -293,6 +293,9 @@ llm-service/data/training_sets/**
 !llm-service/data/training_sets/**/template.json
 !llm-service/data/training_sets/**/.gitkeep
 
+# Additional cleaned datasets (large)
+llm-service/data/training_sets_clean/**
+
 # Trained model artifacts (large files)
 llm-service/models/**/*.bin
 llm-service/models/**/*.safetensors

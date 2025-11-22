@@ -53,6 +53,9 @@ llm_trainer = None
 training_jobs = {}
 import_jobs = {}
 
+DATA_IMPORTER_NOT_INITIALIZED = "Data importer not initialized"
+LLM_TRAINER_NOT_INITIALIZED = "LLM trainer not initialized"
+
 
 @app.on_event("startup")
 async def startup_event():
@@ -110,11 +113,11 @@ async def root():
         "message": "BookGen Custom LLM Training Service",
         "version": "2.0.0",
         "features": [
-            "Custom GPT-2 fine-tuning",
-            "Data.gov integration",
-            "Domain-specific training",
+            "Kaggle GPU fine-tuned distilgpt2 (BookGen v1)",
+            "Domain-specific fine-tuning and fallback model support",
             "Real-time inference",
-            "MongoDB training data storage"
+            "MongoDB training data storage",
+            "Automated validation & benchmarking scripts"
         ],
         "status": "ready" if database else "initializing"
     }
@@ -158,7 +161,7 @@ async def import_data_from_file(
 ):
     """Import training data from JSON file"""
     if not data_importer:
-        raise HTTPException(status_code=503, detail="Data importer not initialized")
+        raise HTTPException(status_code=503, detail=DATA_IMPORTER_NOT_INITIALIZED)
     
     try:
         imported, skipped, errors = await data_importer.import_from_json_file(
@@ -191,7 +194,7 @@ async def import_data_from_directory(
 ):
     """Import training data from all JSON files in directory"""
     if not data_importer:
-        raise HTTPException(status_code=503, detail="Data importer not initialized")
+        raise HTTPException(status_code=503, detail=DATA_IMPORTER_NOT_INITIALIZED)
     
     try:
         results = await data_importer.import_from_directory(
@@ -219,7 +222,7 @@ async def import_data_from_directory(
 async def add_training_example(example: TrainingExampleRequest):
     """Add a single training example"""
     if not data_importer:
-        raise HTTPException(status_code=503, detail="Data importer not initialized")
+        raise HTTPException(status_code=503, detail=DATA_IMPORTER_NOT_INITIALIZED)
     
     try:
         example_id = await data_importer.add_single_example(example)
@@ -237,7 +240,7 @@ async def get_dataset_stats(
 ) -> DatasetStats:
     """Get dataset statistics"""
     if not data_importer:
-        raise HTTPException(status_code=503, detail="Data importer not initialized")
+        raise HTTPException(status_code=503, detail=DATA_IMPORTER_NOT_INITIALIZED)
     
     try:
         stats = await data_importer.get_dataset_stats(domain_id, niche_id)
@@ -257,7 +260,7 @@ async def get_dataset_stats(
 async def list_domains():
     """List all available domains with training data"""
     if not data_importer:
-        raise HTTPException(status_code=503, detail="Data importer not initialized")
+        raise HTTPException(status_code=503, detail=DATA_IMPORTER_NOT_INITIALIZED)
     
     try:
         domains = await data_importer.list_domains()
@@ -307,7 +310,7 @@ async def start_training(
 ):
     """Start a new training job"""
     if not llm_trainer:
-        raise HTTPException(status_code=503, detail="LLM trainer not initialized")
+        raise HTTPException(status_code=503, detail=LLM_TRAINER_NOT_INITIALIZED)
     
     try:
         job_id = await llm_trainer.start_training_job(
@@ -335,7 +338,7 @@ async def start_training(
 async def get_training_status(job_id: str):
     """Get training job status"""
     if not llm_trainer:
-        raise HTTPException(status_code=503, detail="LLM trainer not initialized")
+        raise HTTPException(status_code=503, detail=LLM_TRAINER_NOT_INITIALIZED)
     
     try:
         job = await llm_trainer.get_training_status(job_id)
@@ -364,7 +367,7 @@ async def list_training_jobs(
 ):
     """List training jobs"""
     if not llm_trainer:
-        raise HTTPException(status_code=503, detail="LLM trainer not initialized")
+        raise HTTPException(status_code=503, detail=LLM_TRAINER_NOT_INITIALIZED)
     
     try:
         jobs = await llm_trainer.list_training_jobs(domain_id, limit)
@@ -383,7 +386,7 @@ async def list_training_jobs(
 async def list_models(domain_id: Optional[str] = None):
     """List available trained models"""
     if not llm_trainer:
-        raise HTTPException(status_code=503, detail="LLM trainer not initialized")
+        raise HTTPException(status_code=503, detail=LLM_TRAINER_NOT_INITIALIZED)
     
     try:
         models = await llm_trainer.get_available_models(domain_id)
@@ -402,7 +405,7 @@ async def list_models(domain_id: Optional[str] = None):
 async def generate_text(request: TextGenerationRequest):
     """Generate text using trained model"""
     if not llm_trainer:
-        raise HTTPException(status_code=503, detail="LLM trainer not initialized")
+        raise HTTPException(status_code=503, detail=LLM_TRAINER_NOT_INITIALIZED)
     
     try:
         response = await llm_trainer.generate_text(request)

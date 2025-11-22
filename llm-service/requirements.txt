@@ -1,72 +1,73 @@
 # FastAPI and server
-fastapi==0.109.0
-uvicorn[standard]==0.27.0
-pydantic==2.6.0
+fastapi
+uvicorn[standard]
+pydantic
 
 # MongoDB Database
-motor==3.3.2           # Async MongoDB driver
-pymongo==4.6.0         # Sync MongoDB driver
+motor           # Async MongoDB driver
+pymongo         # Sync MongoDB driver
 
 # CORS and file handling
-python-multipart==0.0.6
+python-multipart
 
 # Environment
-python-dotenv==1.0.0
+python-dotenv
 
 # Testing
-pytest==8.0.0
-pytest-asyncio==0.23.3
-httpx==0.26.0
+pytest
+pytest-asyncio
+httpx
 
 # ============================================
 # Custom LLM Development Stack
 # ============================================
 
 # Core ML Frameworks (CPU-friendly defaults)
-torch>=2.0.0,<3.0.0  # PyTorch for model training
+torch  # PyTorch for model training
 
 # Hugging Face Ecosystem
-transformers>=4.35.0  # Pre-trained models and tokenizers
-datasets>=2.14.0      # Data loading and processing
-tokenizers>=0.14.0    # Fast tokenization
-peft>=0.6.0           # Parameter Efficient Fine-Tuning
-accelerate>=0.24.0    # Training optimization
+transformers  # Pre-trained models and tokenizers
+datasets      # Data loading and processing
+tokenizers    # Fast tokenization
+peft           # Parameter Efficient Fine-Tuning
+accelerate    # Training optimization
 
 # NLP and Text Processing
-nltk>=3.8.1           # Natural Language Toolkit
-spacy>=3.7.0          # Advanced NLP processing
-textblob>=0.17.1      # Simple text processing
-scikit-learn>=1.3.0   # ML utilities and metrics
+nltk           # Natural Language Toolkit
+spacy          # Advanced NLP processing
+textblob      # Simple text processing
+scikit-learn   # ML utilities and metrics
 
 # Data Processing and Analysis
-pandas>=2.1.0         # Data manipulation
-numpy>=1.24.0         # Numerical computing
-matplotlib>=3.7.0     # Plotting and visualization
-seaborn>=0.12.0       # Statistical visualization
+pandas         # Data manipulation
+numpy         # Numerical computing
+psutil        # System resource metrics for training
+matplotlib     # Plotting and visualization
+seaborn       # Statistical visualization
 
 # Model Optimization and Quantization (GPU-optional)
 # bitsandbytes>=0.41.0  # Requires GPU; uncomment if a compatible accelerator is available
 # optimum>=1.13.0       # Additional optimizations for accelerator-backed deployments
 
 # PDF Generation and Document Processing
-reportlab>=4.0.0      # PDF generation
-python-docx>=0.8.11   # Word document processing
-pypdf2>=3.0.0         # PDF manipulation
-markdown>=3.5.0       # Markdown processing
+reportlab      # PDF generation
+python-docx   # Word document processing
+pypdf2         # PDF manipulation
+markdown       # Markdown processing
 
 # Manual Data Import Utilities
-requests>=2.31.0      # HTTP requests for manual downloads
-aiofiles>=23.2.1      # Async file operations
+requests      # HTTP requests for manual downloads
+aiofiles      # Async file operations
 
 # Model Evaluation and Metrics
-rouge-score>=0.1.2    # Text summarization metrics
-bleu>=0.2.0           # Translation quality metrics
+rouge-score    # Text summarization metrics
+bleu           # Translation quality metrics
 
 # Additional Utilities
-tqdm>=4.66.0          # Progress bars
-python-dateutil>=2.8.2 # Date utilities
-regex>=2023.10.0      # Enhanced regex support
+tqdm          # Progress bars
+python-dateutil # Date utilities
+regex      # Enhanced regex support
 
 # Development Tools
-black>=23.0.0         # Code formatting
-flake8>=6.0.0         # Code linting
+black         # Code formatting
+flake8         # Code linting

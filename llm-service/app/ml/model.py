@@ -17,7 +17,7 @@ from pathlib import Path
 class BookGenModel:
     """Custom LLM for book generation based on domain-specific data"""
     
-    def __init__(self, model_name: str = "distilgpt2", use_peft: bool = True):
+    def __init__(self, model_name: str = "models/final_model", use_peft: bool = False):
         """
         Initialize the model
         

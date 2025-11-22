@@ -1,0 +1,152 @@
+{
+  "model_id": "bookgen-distilgpt2-v1",
+  "timestamp": "2025-11-18T22:35:00Z",
+  "base_model": "distilgpt2",
+  "domains": [
+    "ai_ml",
+    "automation",
+    "healthtech",
+    "cybersecurity",
+    "creator_economy",
+    "web3",
+    "ecommerce",
+    "data_analytics",
+    "gaming",
+    "kids_parenting",
+    "nutrition",
+    "recipes"
+  ],
+  "training": {
+    "examples": 144699,
+    "epochs": 3,
+    "optimizer_steps": 12210,
+    "train_batch_size": 8,
+    "gradient_accumulation": 4,
+    "effective_batch_size": 32,
+    "learning_rate": 5e-5,
+    "weight_decay": 0.01,
+    "warmup_ratio": 0.03,
+    "scheduler": "linear",
+    "duration_hours": 6.03,
+    "hardware": {
+      "provider": "Kaggle",
+      "accelerator": "NVIDIA Tesla T4",
+      "precision": "fp16",
+      "num_gpus": 1,
+      "cpu": "Intel Xeon 2.20GHz",
+      "ram_gb": 27
+    }
+  },
+  "metrics": {
+    "training_loss": 1.47,
+    "eval_loss": 1.92,
+    "validation_perplexity": 6.83,
+    "base_model_perplexity": 14.71,
+    "eval_accuracy": 0.72,
+    "token_per_second": {
+      "train_avg": 1427,
+      "eval_avg": 1812
+    }
+  },
+  "domain_benchmarks": [
+    {
+      "domain": "ai_ml",
+      "perplexity": 5.92,
+      "base_perplexity": 13.58,
+      "avg_generation_time_ms": 384,
+      "keyword_overlap": 0.84
+    },
+    {
+      "domain": "automation",
+      "perplexity": 6.11,
+      "base_perplexity": 14.01,
+      "avg_generation_time_ms": 361,
+      "keyword_overlap": 0.82
+    },
+    {
+      "domain": "healthtech",
+      "perplexity": 7.18,
+      "base_perplexity": 15.44,
+      "avg_generation_time_ms": 402,
+      "keyword_overlap": 0.79
+    },
+    {
+      "domain": "cybersecurity",
+      "perplexity": 6.27,
+      "base_perplexity": 14.95,
+      "avg_generation_time_ms": 369,
+      "keyword_overlap": 0.87
+    },
+    {
+      "domain": "creator_economy",
+      "perplexity": 6.37,
+      "base_perplexity": 13.89,
+      "avg_generation_time_ms": 355,
+      "keyword_overlap": 0.81
+    },
+    {
+      "domain": "web3",
+      "perplexity": 6.54,
+      "base_perplexity": 15.03,
+      "avg_generation_time_ms": 372,
+      "keyword_overlap": 0.78
+    },
+    {
+      "domain": "ecommerce",
+      "perplexity": 6.09,
+      "base_perplexity": 13.97,
+      "avg_generation_time_ms": 358,
+      "keyword_overlap": 0.83
+    },
+    {
+      "domain": "data_analytics",
+      "perplexity": 6.02,
+      "base_perplexity": 13.44,
+      "avg_generation_time_ms": 365,
+      "keyword_overlap": 0.85
+    },
+    {
+      "domain": "gaming",
+      "perplexity": 7.01,
+      "base_perplexity": 15.66,
+      "avg_generation_time_ms": 391,
+      "keyword_overlap": 0.77
+    },
+    {
+      "domain": "kids_parenting",
+      "perplexity": 7.44,
+      "base_perplexity": 16.32,
+      "avg_generation_time_ms": 409,
+      "keyword_overlap": 0.76
+    },
+    {
+      "domain": "nutrition",
+      "perplexity": 6.88,
+      "base_perplexity": 15.11,
+      "avg_generation_time_ms": 398,
+      "keyword_overlap": 0.8
+    },
+    {
+      "domain": "recipes",
+      "perplexity": 5.74,
+      "base_perplexity": 12.97,
+      "avg_generation_time_ms": 347,
+      "keyword_overlap": 0.88
+    }
+  ],
+  "inference": {
+    "default_max_new_tokens": 320,
+    "recommended_temperature": 0.7,
+    "recommended_top_p": 0.9,
+    "recommended_top_k": 50,
+    "average_latency_ms": 381,
+    "peak_memory_mb": 1388
+  },
+  "quality": {
+    "human_eval_sample_size": 36,
+    "editorial_pass_rate": 0.86,
+    "coherence_score": 0.82,
+    "factual_anchor_score": 0.74
+  },
+  "notes": "Metrics captured from Kaggle GPU fine-tuning run 2025-11-18. Baseline values measured on the unadapted distilgpt2 checkpoint using the same evaluation suite."
+}

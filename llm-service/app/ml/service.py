@@ -83,10 +83,11 @@ class LLMService:
             await self.mongodb_manager.initialize()
             
             # Initialize model
+            model_path = "models/final_model"
             self.model = BookGenModel(
-                model_name="distilgpt2",
+                model_name=model_path,
                 lora_r=self.config['lora_r'],
-                lora_alpha=self.config['lora_alpha'],
+                lora_alpha=self.config['lora_alpha'], 
                 lora_dropout=self.config['lora_dropout']
             )
             

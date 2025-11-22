@@ -310,7 +310,7 @@ def main() -> None:
         total_train_steps,
     )
 
-    eval_strategy = "steps" if eval_dataset is not None else "no"
+    evaluation_strategy = "steps" if eval_dataset is not None else "no"
     training_args = TrainingArguments(
         output_dir=str(args.output_dir),
         overwrite_output_dir=True,
@@ -318,7 +318,7 @@ def main() -> None:
         per_device_train_batch_size=args.batch_size,
         per_device_eval_batch_size=args.batch_size,
         gradient_accumulation_steps=args.gradient_accumulation,
-        eval_strategy=eval_strategy,
+        evaluation_strategy=evaluation_strategy,
         logging_strategy="steps",
         save_strategy="steps",
         learning_rate=args.learning_rate,
@@ -332,6 +332,9 @@ def main() -> None:
         metric_for_best_model="loss",
         greater_is_better=False,
         no_cuda=True,  # Enforce CPU execution
+        dataloader_num_workers=4, # Use multiple CPU workers
+        dataloader_pin_memory=True,
+        torch_compile=False,    # Disable as it can slow down CPU training
     )
 
     trainer = Trainer(

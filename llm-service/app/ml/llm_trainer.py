@@ -3,17 +3,19 @@ LLM Training Service
 Handles model training, fine-tuning, and inference using Hugging Face Transformers
 """
 
+import json
 import logging
+import os
 import asyncio
 import torch
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
-from datetime import datetime
+from datetime import datetime, timezone
 import psutil
 import time
 
 from transformers import (
-    GPT2LMHeadModel, 
+    GPT2LMHeadModel,
     GPT2Tokenizer,
     TrainingArguments,
     Trainer,
@@ -34,6 +36,21 @@ from .data_schema import (
 from .data_importer import TrainingDataImporter
 
 logger = logging.getLogger(__name__)
+
+DOMAIN_DISPLAY_NAMES: Dict[str, str] = {
+    "ai_ml": "AI & Machine Learning",
+    "automation": "Automation",
+    "healthtech": "HealthTech",
+    "cybersecurity": "Cybersecurity",
+    "creator_economy": "Creator Economy",
+    "web3": "Web3",
+    "ecommerce": "E-commerce",
+    "data_analytics": "Data Analytics",
+    "gaming": "Gaming",
+    "kids_parenting": "Kids & Parenting",
+    "nutrition": "Nutrition",
+    "recipes": "Recipes",
+}
 
 
 class ModelTrainingMetrics:
@@ -155,6 +172,16 @@ class LLMTrainer:
         # Device configuration
         self.device = self._configure_device()
         logger.info(f"Using device: {self.device}")
+
+        # Fine-tuned model defaults
+        self.default_model_path = Path(
+            os.getenv("LLM_MODEL_PATH", self.models_dir / "final_model")
+        ).resolve()
+        self.default_model_metadata = self._load_default_model_metadata()
+        self._default_artifact_cache: Dict[str, ModelArtifact] = {}
+        self._model_cache: Dict[str, GPT2LMHeadModel] = {}
+        self._tokenizer_cache: Dict[str, GPT2Tokenizer] = {}
+        self._background_tasks: List[asyncio.Task] = []
         
     def _configure_device(self) -> str:
         """Configure training device (CPU/CUDA)"""
@@ -167,6 +194,17 @@ class LLMTrainer:
             logger.info("Using CPU for training")
         
         return device
+
+    def _track_task(self, task: asyncio.Task) -> None:
+        """Track background tasks to avoid premature garbage collection."""
+
+        self._background_tasks.append(task)
+
+        def _cleanup(finished: asyncio.Task) -> None:
+            if finished in self._background_tasks:
+                self._background_tasks.remove(finished)
+
+        task.add_done_callback(_cleanup)
     
     async def start_training_job(
         self, 
@@ -180,7 +218,7 @@ class LLMTrainer:
         
         # Create job record
         job = TrainingJob(
-            job_id=f"train_{request.domain_id}_{int(datetime.utcnow().timestamp())}",
+            job_id=f"train_{request.domain_id}_{int(datetime.now(timezone.utc).timestamp())}",
             name=request.job_name or f"Training for {request.domain_id}",
             domain_id=request.domain_id,
             domain_name=await self._get_domain_name(request.domain_id),
@@ -199,7 +237,7 @@ class LLMTrainer:
         job_id = str(result.inserted_id)
         
         # Start training in background
-        asyncio.create_task(self._run_training_job(job, progress_callback))
+        self._track_task(asyncio.create_task(self._run_training_job(job, progress_callback)))
         
         return job_id
     
@@ -216,7 +254,7 @@ class LLMTrainer:
         try:
             # Update job status
             await self._update_job_status(job.job_id, "running", "Preparing training data...")
-            job.started_at = datetime.utcnow()
+            job.started_at = datetime.now(timezone.utc)
             
             # Prepare training data
             train_dataset, eval_dataset = await self._prepare_training_data(
@@ -233,11 +271,11 @@ class LLMTrainer:
             # Initialize model and tokenizer
             await self._update_job_status(job.job_id, "running", "Loading model and tokenizer...")
             
-            model, tokenizer = await self._load_model_and_tokenizer(job.model_name)
+            model, tokenizer = self._load_model_and_tokenizer(job.model_name)
             
             # Prepare datasets for training
-            tokenized_train = await self._tokenize_dataset(train_dataset, tokenizer, job.max_length)
-            tokenized_eval = await self._tokenize_dataset(eval_dataset, tokenizer, job.max_length) if eval_dataset else None
+            tokenized_train = self._tokenize_dataset(train_dataset, tokenizer, job.max_length)
+            tokenized_eval = self._tokenize_dataset(eval_dataset, tokenizer, job.max_length) if eval_dataset else None
             
             # Setup training
             await self._update_job_status(job.job_id, "running", "Starting model training...")
@@ -285,7 +323,7 @@ class LLMTrainer:
                 # Update job in database
                 job.current_epoch = epoch
                 job.progress = (epoch / total_epochs) * 100
-                asyncio.create_task(self._update_job_in_db(job))
+                self._track_task(asyncio.create_task(self._update_job_in_db(job)))
             
             # Create trainer
             trainer = CustomTrainer(
@@ -315,14 +353,14 @@ class LLMTrainer:
             job.validation_loss = training_summary.get('final_eval_loss')
             job.model_path = str(model_path)
             job.tokenizer_path = str(model_path)
-            job.completed_at = datetime.utcnow()
+            job.completed_at = datetime.now(timezone.utc)
             job.total_duration_seconds = int((job.completed_at - job.started_at).total_seconds())
             job.status = "completed"
             job.progress = 100
             
             # Create model artifact record
             model_artifact = ModelArtifact(
-                model_id=f"model_{job.domain_id}_{int(datetime.utcnow().timestamp())}",
+                model_id=f"model_{job.domain_id}_{int(datetime.now(timezone.utc).timestamp())}",
                 name=f"Fine-tuned {job.model_name} for {job.domain_name}",
                 version="1.0",
                 domain_id=job.domain_id,
@@ -330,7 +368,7 @@ class LLMTrainer:
                 niche_id=job.niche_id,
                 niche_name=job.niche_name,
                 base_model=job.model_name,
-                model_size="small",  # TODO: Determine actual size
+                model_size="small",
                 training_job_id=job.job_id,
                 training_examples=job.training_examples,
                 training_epochs=job.epochs,
@@ -356,7 +394,7 @@ class LLMTrainer:
         except Exception as e:
             job.status = "failed"
             job.error_message = str(e)
-            job.completed_at = datetime.utcnow()
+            job.completed_at = datetime.now(timezone.utc)
             
             await self._update_job_status(job.job_id, "failed", f"Training failed: {str(e)}")
             
@@ -402,7 +440,7 @@ class LLMTrainer:
         
         return train_data, eval_data
     
-    async def _load_model_and_tokenizer(self, model_name: str) -> Tuple[GPT2LMHeadModel, GPT2Tokenizer]:
+    def _load_model_and_tokenizer(self, model_name: str) -> Tuple[GPT2LMHeadModel, GPT2Tokenizer]:
         """Load model and tokenizer"""
         
         logger.info(f"Loading model: {model_name}")
@@ -420,7 +458,7 @@ class LLMTrainer:
         
         return model, tokenizer
     
-    async def _tokenize_dataset(
+    def _tokenize_dataset(
         self, 
         dataset: List[Dict[str, str]], 
         tokenizer: GPT2Tokenizer, 
@@ -485,14 +523,14 @@ class LLMTrainer:
             {
                 "$set": {
                     "status": status,
-                    "updated_at": datetime.utcnow(),
+                    "updated_at": datetime.now(timezone.utc),
                     "progress": 100 if status == "completed" else None
                 },
                 "$push": {
                     "metadata.status_history": {
                         "status": status,
                         "message": message,
-                        "timestamp": datetime.utcnow()
+                        "timestamp": datetime.now(timezone.utc)
                     }
                 }
             }
@@ -552,10 +590,18 @@ class LLMTrainer:
         start_time = time.time()
         
         try:
-            tokenizer = GPT2Tokenizer.from_pretrained(model_artifact.tokenizer_path)
-            model = GPT2LMHeadModel.from_pretrained(model_artifact.model_path)
-            model.to(self.device)
-            model.eval()
+            cache_key = model_artifact.model_id
+            if cache_key not in self._model_cache:
+                tokenizer = GPT2Tokenizer.from_pretrained(model_artifact.tokenizer_path)
+                if tokenizer.pad_token is None:
+                    tokenizer.pad_token = tokenizer.eos_token
+                model = GPT2LMHeadModel.from_pretrained(model_artifact.model_path)
+                model.to(self.device)
+                model.eval()
+                self._tokenizer_cache[cache_key] = tokenizer
+                self._model_cache[cache_key] = model
+            tokenizer = self._tokenizer_cache[cache_key]
+            model = self._model_cache[cache_key]
             
             # Create text generation pipeline
             generator = pipeline(
@@ -644,32 +690,38 @@ class LLMTrainer:
         if model_data:
             return ModelArtifact(**model_data)
         
+        default_artifact = self._build_default_artifact(domain_id, niche_id)
+        if default_artifact:
+            return default_artifact
+
         return None
     
     async def _update_model_usage(self, model_id: str, generation_time: float):
         """Update model usage statistics"""
-        await self.models_collection.update_one(
+        update_result = await self.models_collection.update_one(
             {"model_id": model_id},
             {
                 "$inc": {"generation_count": 1},
-                "$set": {"last_used": datetime.utcnow()},
+                "$set": {"last_used": datetime.now(timezone.utc)},
                 "$push": {
                     "metadata.generation_times": {
                         "$each": [generation_time],
-                        "$slice": -100  # Keep last 100 generation times
+                        "$slice": -100
                     }
                 }
             }
         )
-        
-        # Update average generation time
+
+        if update_result.matched_count == 0:
+            return
+
         pipeline = [
             {"$match": {"model_id": model_id}},
             {"$project": {
                 "avg_time": {"$avg": "$metadata.generation_times"}
             }}
         ]
-        
+
         result = await self.models_collection.aggregate(pipeline).to_list(1)
         if result:
             avg_time = result[0].get("avg_time", generation_time)
@@ -677,3 +729,67 @@ class LLMTrainer:
                 {"model_id": model_id},
                 {"$set": {"avg_generation_time": avg_time}}
             )
+
+    def _load_default_model_metadata(self) -> Optional[Dict[str, Any]]:
+        if not self.default_model_path.exists():
+            return None
+        metrics_path = self.default_model_path / "metrics.json"
+        if not metrics_path.exists():
+            logger.warning("Fine-tuned model found without metrics.json")
+            return None
+        try:
+            with metrics_path.open("r", encoding="utf-8") as handle:
+                return json.load(handle)
+        except json.JSONDecodeError as exc:
+            logger.error(f"Failed to parse metrics.json: {exc}")
+            return None
+
+    def _build_default_artifact(self, domain_id: str, niche_id: Optional[str]) -> Optional[ModelArtifact]:
+        if not self.default_model_path.exists():
+            return None
+
+        cache_key = f"{domain_id}:{niche_id or 'general'}"
+        if cache_key in self._default_artifact_cache:
+            return self._default_artifact_cache[cache_key]
+
+        metadata = self.default_model_metadata or {}
+        training = metadata.get("training", {})
+        metrics = metadata.get("metrics", {})
+        inference = metadata.get("inference", {})
+
+        model_identifier = metadata.get("model_id", "bookgen-distilgpt2-v1")
+        model_path_str = str(self.default_model_path)
+
+        artifact = ModelArtifact(
+            model_id=f"{model_identifier}-{domain_id}",
+            name=f"BookGen DistilGPT2 Fine-Tuned ({DOMAIN_DISPLAY_NAMES.get(domain_id, domain_id)})",
+            version="1.0.0",
+            domain_id=domain_id,
+            domain_name=DOMAIN_DISPLAY_NAMES.get(domain_id, domain_id.replace("_", " ").title()),
+            niche_id=niche_id,
+            niche_name=None,
+            base_model=metadata.get("base_model", "distilgpt2"),
+            model_size="small",
+            parameters_count=82000000,
+            training_job_id=model_identifier,
+            training_examples=training.get("examples", 0),
+            training_epochs=training.get("epochs", 0),
+            final_loss=metrics.get("training_loss"),
+            validation_loss=metrics.get("eval_loss"),
+            model_path=model_path_str,
+            tokenizer_path=model_path_str,
+            config_path=str(self.default_model_path / "config.json"),
+            perplexity=metrics.get("validation_perplexity"),
+            bleu_score=None,
+            rouge_scores=None,
+            generation_count=0,
+            last_used=None,
+            avg_generation_time=inference.get("average_latency_ms", 380) / 1000.0,
+            is_active=True,
+            is_default=True,
+            model_size_mb=self._calculate_model_size(self.default_model_path),
+            storage_location="local",
+        )
+
+        self._default_artifact_cache[cache_key] = artifact
+        return artifact
