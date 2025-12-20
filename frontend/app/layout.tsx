@@ -3,11 +3,12 @@
  */
 
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+// import { Inter } from 'next/font/google';
 import { AuthProvider } from '@/lib/contexts/AuthContext';
 import './globals.css';
 
-const inter = Inter({ subsets: ['latin'] });
+// const inter = Inter({ subsets: ['latin'] });
+const inter = { className: 'font-sans' }; // Fallback font class
 
 export const metadata: Metadata = {
   title: 'BookGen-AI | AI-Powered Book Generation',

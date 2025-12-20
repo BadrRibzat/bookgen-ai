@@ -97,7 +97,7 @@ async def startup_event():
 @app.on_event("shutdown")
 async def shutdown_event():
     """Cleanup on shutdown"""
-    if database:
+    if database is not None:
         database.client.close()
         logger.info("Database connection closed")
 
@@ -119,14 +119,14 @@ async def root():
             "MongoDB training data storage",
             "Automated validation & benchmarking scripts"
         ],
-        "status": "ready" if database else "initializing"
+        "status": "ready" if database is not None else "initializing"
     }
 
 
 @app.get("/health")
 async def health_check():
     """Health check endpoint"""
-    if not database:
+    if database is None:
         raise HTTPException(status_code=503, detail="Database not connected")
     
     try:

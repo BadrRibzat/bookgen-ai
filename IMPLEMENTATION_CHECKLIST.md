@@ -178,10 +178,10 @@ Navigate to http://localhost:3000 and try:
 - [ ] Chapter management
 - [ ] Save drafts
 
-### Phase 4: Custom LLM (Future)
-- [ ] LLM integration
-- [ ] Content generation
-- [ ] Quality checks
+### Phase 4: Custom LLM (In Progress)
+- [x] LLM integration (service up, connected to MongoDB)
+- [x] Content generation (smoke-tested `/generate` on `cybersecurity` domain)
+- [ ] Quality checks (human review & scoring still needed)
 
 ### Phase 5: Cover Generation (Future)
 - [ ] AI cover generation

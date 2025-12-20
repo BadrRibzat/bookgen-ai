@@ -65,6 +65,7 @@ services:
       - DATABASE_URL=mongodb://bookgen_admin:${MONGODB_PASSWORD:-changeme}@mongodb:27017/bookgen?authSource=admin
       - REDIS_URL=redis://:bookgen_redis_password@redis:6379/0
       - CELERY_BROKER_URL=redis://:bookgen_redis_password@redis:6379/0
+      - LLM_SERVICE_URL=http://llm_service:8001
     volumes:
       - ./backend:/app
       - backend_static:/app/staticfiles
