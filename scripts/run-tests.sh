@@ -25,7 +25,7 @@ echo ""
 # ============================================
 echo -e "${BLUE}==>${NC} Running Backend Tests (pytest)..."
 cd backend
-source venv/bin/activate
+source ../venv/bin/activate
 
 if pytest tests/ -v --cov=apps --cov-report=html --cov-report=term; then
     echo -e "${GREEN}✓${NC} Backend tests passed"
@@ -64,7 +64,7 @@ cd ..
 # ============================================
 echo -e "${BLUE}==>${NC} Running LLM Service Tests (pytest)..."
 cd llm-service
-source venv/bin/activate
+source ../venv/bin/activate
 
 if pytest tests/ -v --cov=app --cov-report=html --cov-report=term; then
     echo -e "${GREEN}✓${NC} LLM service tests passed"

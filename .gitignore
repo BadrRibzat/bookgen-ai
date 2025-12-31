@@ -300,6 +300,9 @@ llm-service/data/training_sets/**
 # Additional cleaned datasets (large)
 llm-service/data/training_sets_clean/**
 
+# Import queue for large manual restorations
+llm-service/data/import_queue/**
+
 # Trained model artifacts (large files)
 llm-service/models/**/*.bin
 llm-service/models/**/*.safetensors
