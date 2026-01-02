@@ -304,11 +304,11 @@ llm-service/data/training_sets_clean/**
 llm-service/data/import_queue/**
 
 # Trained model artifacts (large files)
-llm-service/models/**/*.bin
-llm-service/models/**/*.safetensors
-llm-service/models/**/*.pt
-llm-service/models/**/*.pth
-llm-service/models/**/*.ckpt
+#llm-service/models/**/*.bin
+#llm-service/models/**/*.safetensors
+#llm-service/models/**/*.pt
+#llm-service/models/**/*.pth
+#llm-service/models/**/*.ckpt
 
 # BUT keep model configs and metadata
 !llm-service/models/**/*.json
@@ -367,3 +367,7 @@ TestResults.xml
 
 #Ignore vscode AI rules
 .github/instructions/codacy.instructions.md
+
+# Git LFS managed files (tracked separately)
+# llm-service/models/**/*.safetensors
+# llm-service/models/**/*.bin
