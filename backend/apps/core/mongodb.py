@@ -18,6 +18,7 @@ COLLECTIONS = {
     'NICHES': 'niches', 
     'AUDIENCES': 'audiences',
     'BOOKS': 'books',
+    'CHAPTERS': 'chapters',
     'BOOK_GENERATION_JOBS': 'book_generation_jobs',
     'USER_ANALYTICS': 'user_analytics',
 }
@@ -200,6 +201,24 @@ def delete_one(collection_name, query):
         return result.deleted_count
     except Exception as e:
         logger.error(f"Error deleting document from {collection_name}: {e}")
+        return 0
+
+def delete_many(collection_name, query):
+    """Delete multiple documents"""
+    try:
+        collection = get_collection(collection_name)
+        
+        # Handle ID conversion in query
+        if '_id' in query and isinstance(query['_id'], str):
+            try:
+                query['_id'] = ObjectId(query['_id'])
+            except InvalidId:
+                return 0
+        
+        result = collection.delete_many(query)
+        return result.deleted_count
+    except Exception as e:
+        logger.error(f"Error bulk deleting from {collection_name}: {e}")
         return 0
 
 def count_documents(collection_name, query=None):

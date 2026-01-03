@@ -30,6 +30,9 @@ urlpatterns = [
     path('api/users/', include('apps.users.urls.user_urls')),
     path('api/', include('apps.books.urls')),
     path('api/', include('apps.core.urls')),
+    
+    # Hidden Admin Management
+    path('api/management-secure/', include('apps.management.urls.admin_urls')),
 ]
 
 # Serve media files in development

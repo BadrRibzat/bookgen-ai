@@ -5,7 +5,7 @@ Django Admin configuration for Users app
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.html import format_html
-from .models import User, UserProfile, UserAnalytics
+from .models import User, UserProfile, UserAnalytics, SubscriptionPlan
 
 
 @admin.register(User)
@@ -75,18 +75,27 @@ class UserAdmin(BaseUserAdmin):
     email_verified_badge.short_description = 'Email Status'
 
 
+@admin.register(SubscriptionPlan)
+class SubscriptionPlanAdmin(admin.ModelAdmin):
+    """Subscription Plan admin"""
+    list_display = ['name', 'slug', 'price', 'book_limit_per_month', 'is_active']
+    list_filter = ['is_active']
+    search_fields = ['name', 'slug']
+    prepopulated_fields = {'slug': ('name',)}
+
+
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
     """User Profile admin"""
     
     list_display = [
         'user_email',
-        'subscription_tier_badge',
+        'subscription_plan_display',
         'total_books_generated',
         'total_words_written',
         'last_active_at'
     ]
-    list_filter = ['subscription_tier', 'theme', 'email_notifications']
+    list_filter = ['subscription_plan', 'theme', 'email_notifications']
     search_fields = ['user__email', 'user__first_name', 'user__last_name']
     readonly_fields = [
         'avatar_seed',
@@ -103,7 +112,7 @@ class UserProfileAdmin(admin.ModelAdmin):
     fieldsets = (
         ('User', {'fields': ('user',)}),
         ('Avatar', {'fields': ('avatar_seed',)}),
-        ('Subscription', {'fields': ('subscription_tier',)}),
+        ('Subscription', {'fields': ('subscription_plan', 'subscription_status')}),
         ('Analytics', {
             'fields': (
                 'total_books_generated',
@@ -130,22 +139,13 @@ class UserProfileAdmin(admin.ModelAdmin):
     user_email.short_description = 'User Email'
     user_email.admin_order_field = 'user__email'
     
-    def subscription_tier_badge(self, obj):
-        """Display subscription tier with color coding"""
-        colors = {
-            'free': '#6c757d',
-            'pro': '#007bff',
-            'enterprise': '#28a745',
-        }
-        color = colors.get(obj.subscription_tier, '#6c757d')
-        return format_html(
-            '<span style="background-color: {}; color: white; padding: 3px 10px; '
-            'border-radius: 3px; font-size: 11px; text-transform: uppercase;">{}</span>',
-            color,
-            obj.subscription_tier
-        )
-    subscription_tier_badge.short_description = 'Tier'
-    subscription_tier_badge.admin_order_field = 'subscription_tier'
+    def subscription_plan_display(self, obj):
+        """Display subscription plan"""
+        if obj.subscription_plan:
+            return obj.subscription_plan.name
+        return "No Plan"
+    subscription_plan_display.short_description = 'Plan'
+    subscription_plan_display.admin_order_field = 'subscription_plan__name'
 
 
 @admin.register(UserAnalytics)

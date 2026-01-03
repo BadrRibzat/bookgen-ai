@@ -7,7 +7,7 @@ from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.contrib.auth import authenticate
-from .models import User, UserProfile, UserAnalytics
+from .models import User, UserProfile, UserAnalytics, SubscriptionPlan
 import re
 
 
@@ -186,7 +186,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
         fields = [
             'avatar_seed',
             'avatar_initials',
-            'subscription_tier',
+            'subscription_plan',
+            'subscription_status',
             'total_books_generated',
             'total_words_written',
             'total_edit_actions',
@@ -199,7 +200,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = [
             'avatar_seed',
-            'subscription_tier',
+            'subscription_plan',
+            'subscription_status',
             'total_books_generated',
             'total_words_written',
             'total_edit_actions',
@@ -250,8 +252,16 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = User
-        fields = ['first_name', 'last_name']
+        fields = ['first_name', 'last_name', 'email']
     
+    def validate_email(self, value):
+        """Validate email uniqueness if it's being changed."""
+        user = self.instance
+        if value and value.lower() != user.email:
+            if User.objects.filter(email=value.lower()).exists():
+                raise serializers.ValidationError("A user with this email already exists.")
+        return value.lower()
+
     def validate_first_name(self, value):
         """Validate first name."""
         if value and len(value) < 2:
@@ -291,3 +301,21 @@ class UserAnalyticsSummarySerializer(serializers.Serializer):
     total_time_minutes = serializers.IntegerField()
     recent_activity = UserAnalyticsSerializer(many=True)
     feature_usage = serializers.DictField()
+
+
+class SubscriptionPlanSerializer(serializers.ModelSerializer):
+    """Serializer for subscription plans."""
+    
+    class Meta:
+        model = SubscriptionPlan
+        fields = ['id', 'name', 'slug', 'price', 'book_limit_per_month', 'features']
+
+
+class UsageSummarySerializer(serializers.Serializer):
+    """Serializer for user usage summary."""
+    
+    plan_name = serializers.CharField()
+    book_limit = serializers.IntegerField()
+    current_usage = serializers.IntegerField()
+    remaining_books = serializers.IntegerField()
+    usage_reset_date = serializers.DateTimeField()

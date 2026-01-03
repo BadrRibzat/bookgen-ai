@@ -7,6 +7,8 @@ from ..views import (
     UserProfileView,
     UserAnalyticsView,
     UserBooksHistoryView,
+    SubscriptionPlanListView,
+    UserUsageView,
 )
 
 app_name = 'users'
@@ -20,4 +22,8 @@ urlpatterns = [
     
     # Books history
     path('books-history/', UserBooksHistoryView.as_view(), name='books_history'),
+    
+    # Plans and Usage
+    path('plans/', SubscriptionPlanListView.as_view(), name='plan_list'),
+    path('usage/', UserUsageView.as_view(), name='usage'),
 ]

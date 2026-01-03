@@ -124,6 +124,29 @@ class User(AbstractBaseUser, PermissionsMixin):
         self.save(update_fields=['email_verified', 'email_verification_token', 'email_verification_sent_at'])
 
 
+class SubscriptionPlan(models.Model):
+    """
+    Subscription tiers for the SaaS platform.
+    Defines limits and features for different levels.
+    """
+    name = models.CharField(max_length=50, unique=True)
+    slug = models.SlugField(max_length=50, unique=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    book_limit_per_month = models.IntegerField(default=5)
+    features = models.JSONField(default=dict, blank=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'subscription_plans'
+        verbose_name = 'subscription plan'
+        verbose_name_plural = 'subscription plans'
+
+    def __str__(self):
+        return self.name
+
+
 class UserProfile(models.Model):
     """
     Extended user profile with subscription, analytics, and preferences.
@@ -144,19 +167,23 @@ class UserProfile(models.Model):
     # Relationship
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     
+    # Subscription management
+    subscription_plan = models.ForeignKey(
+        SubscriptionPlan,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='profiles'
+    )
+    subscription_status = models.CharField(
+        max_length=20,
+        default='active'
+    )
+    current_month_book_count = models.IntegerField(default=0)
+    usage_reset_date = models.DateTimeField(default=timezone.now)
+    
     # Avatar (placeholder system - random icon)
     avatar_seed = models.CharField(max_length=50, blank=True)  # Seed for identicon generation
-    # Deferred to Cover Generation phase:
-    # avatar_url = models.URLField(blank=True, null=True)
-    
-    # Subscription (basic tier tracking only)
-    subscription_tier = models.CharField(
-        max_length=20,
-        choices=SUBSCRIPTION_TIERS,
-        default='free'
-    )
-    # Deferred to Payment Integration:
-    # subscription_status, billing_cycle, next_billing_date, etc.
     
     # Comprehensive analytics
     total_books_generated = models.IntegerField(default=0)

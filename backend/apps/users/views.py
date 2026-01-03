@@ -12,8 +12,9 @@ from django_ratelimit.decorators import ratelimit
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from django.core.cache import cache
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiTypes
 
-from .models import User, UserProfile
+from .models import User, UserProfile, SubscriptionPlan
 from .serializers import (
     UserRegistrationSerializer,
     UserLoginSerializer,
@@ -24,6 +25,8 @@ from .serializers import (
     PasswordResetConfirmSerializer,
     EmailVerificationSerializer,
     UserAnalyticsSummarySerializer,
+    SubscriptionPlanSerializer,
+    UsageSummarySerializer,
 )
 from .services import AuthService, UserService
 import logging
@@ -312,6 +315,7 @@ class UserProfileView(APIView):
     """
     permission_classes = [permissions.IsAuthenticated]
     
+    @extend_schema(responses={200: UserSerializer})
     @method_decorator(cache_page(60 * 5))  # Cache for 5 minutes
     def get(self, request):
         """Get authenticated user's profile."""
@@ -321,6 +325,10 @@ class UserProfileView(APIView):
             'user': serializer.data,
         }, status=status.HTTP_200_OK)
     
+    @extend_schema(
+        request=UserUpdateSerializer,
+        responses={200: UserSerializer}
+    )
     def patch(self, request):
         """Update user profile."""
         # Update user basic info
@@ -368,6 +376,66 @@ class UserProfileView(APIView):
                 'details': errors,
             }
         }, status=status.HTTP_400_BAD_REQUEST)
+
+    @extend_schema(responses={200: OpenApiTypes.OBJECT})
+    def delete(self, request):
+        """Delete user account."""
+        user = request.user
+        user.is_active = False  # Soft delete
+        user.save()
+        
+        # Track deletion event
+        UserService.track_user_event(user, 'account_deleted')
+        
+        logger.info(f"User account deactivated: {user.email}")
+        
+        return Response({
+            'success': True,
+            'message': 'Account deleted successfully.',
+        }, status=status.HTTP_200_OK)
+
+
+class SubscriptionPlanListView(generics.ListAPIView):
+    """
+    List available subscription plans.
+    GET /api/users/plans/
+    """
+    permission_classes = [permissions.AllowAny]
+    queryset = SubscriptionPlan.objects.filter(is_active=True)
+    serializer_class = SubscriptionPlanSerializer
+
+
+class UserUsageView(APIView):
+    """
+    User usage limits and remaining books count.
+    GET /api/users/usage/
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    @extend_schema(responses={200: UsageSummarySerializer})
+    def get(self, request):
+        """Get user's current usage and limits."""
+        user = request.user
+        profile = user.profile
+        plan = profile.subscription_plan
+        
+        limit = plan.book_limit_per_month if plan else 0
+        remaining = max(0, limit - profile.current_month_book_count)
+        
+        # In a real app, check if usage_reset_date has passed and reset count
+        
+        data = {
+            'plan_name': plan.name if plan else 'No Plan',
+            'book_limit': limit,
+            'current_usage': profile.current_month_book_count,
+            'remaining_books': remaining,
+            'usage_reset_date': profile.usage_reset_date,
+        }
+        
+        return Response({
+            'success': True,
+            'usage': data,
+        }, status=status.HTTP_200_OK)
 
 
 class UserAnalyticsView(APIView):
