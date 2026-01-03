@@ -19,11 +19,11 @@ interface DomainsGridProps {
   showOverview?: boolean;
 }
 
-export function DomainsGrid({ 
-  onDomainSelect, 
+export function DomainsGrid({
+  onDomainSelect,
   onViewDetails,
   selectedDomainId,
-  showOverview = true 
+  showOverview = true
 }: DomainsGridProps) {
   const [domains, setDomains] = useState<(Domain & { nichesCount?: number; audiencesCount?: number })[]>([]);
   const [loading, setLoading] = useState(true);
@@ -34,7 +34,7 @@ export function DomainsGrid({
     try {
       setLoading(true);
       setError(null);
-      
+
       if (showOverview) {
         // Fetch domains with counts
         const domainsWithCounts = await getDomainsOverview();
@@ -72,7 +72,7 @@ export function DomainsGrid({
           <h2 className="text-2xl font-bold text-gray-900">Available Domains</h2>
           <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600"></div>
         </div>
-        
+
         {/* Loading skeleton */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[...Array(6)].map((_, i) => (
@@ -106,9 +106,9 @@ export function DomainsGrid({
             Retry
           </Button>
         </div>
-        
-        <Alert 
-          type="error" 
+
+        <Alert
+          type="error"
           message={error}
           title="Failed to load domains"
         />
@@ -170,9 +170,9 @@ export function DomainsGrid({
 
       {/* Domains grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {domains.map((domain) => (
+        {domains.map((domain, idx) => (
           <DomainCard
-            key={domain.id}
+            key={domain.id || `domain-${idx}`}
             domain={domain}
             onSelect={handleDomainSelect}
             onViewDetails={handleViewDetails}

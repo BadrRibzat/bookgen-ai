@@ -231,6 +231,7 @@ class UserSerializer(serializers.ModelSerializer):
             'full_name',
             'email_verified',
             'is_active',
+            'is_staff',
             'date_joined',
             'profile',
         ]

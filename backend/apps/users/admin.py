@@ -66,11 +66,13 @@ class UserAdmin(BaseUserAdmin):
         if obj.email_verified:
             return format_html(
                 '<span style="background-color: #28a745; color: white; padding: 3px 10px; '
-                'border-radius: 3px; font-size: 11px;">✓ Verified</span>'
+                'border-radius: 3px; font-size: 11px;">{}</span>',
+                '✓ Verified'
             )
         return format_html(
             '<span style="background-color: #ffc107; color: black; padding: 3px 10px; '
-            'border-radius: 3px; font-size: 11px;">⚠ Unverified</span>'
+            'border-radius: 3px; font-size: 11px;">{}</span>',
+            '⚠ Unverified'
         )
     email_verified_badge.short_description = 'Email Status'
 

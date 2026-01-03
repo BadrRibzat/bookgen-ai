@@ -1,30 +1,26 @@
-/**
- * Dashboard page with domains integration
- */
-
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { useAuth } from '@/lib/contexts/AuthContext';
-import { Button } from '@/components/ui/Button';
 import { DomainsGrid } from '@/components/domains/DomainsGrid';
 import { DomainDetails } from '@/components/domains/DomainDetails';
 import { Modal } from '@/components/ui/Modal';
 import { Domain } from '@/shared/types';
+import DashboardLayout from '@/components/dashboard/DashboardLayout';
+import StatCard from '@/components/dashboard/StatCard';
+import {
+  BookCopy,
+  FileText,
+  ShieldCheck,
+  AlertCircle,
+  Zap
+} from 'lucide-react';
 
 export default function DashboardPage() {
-  const { user, loading, isAuthenticated, logout } = useAuth();
-  const router = useRouter();
+  const { user } = useAuth();
   const [selectedDomain, setSelectedDomain] = useState<Domain | null>(null);
   const [showDomainDetails, setShowDomainDetails] = useState(false);
   const [detailsDomainId, setDetailsDomainId] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!loading && !isAuthenticated) {
-      router.push('/auth/login');
-    }
-  }, [loading, isAuthenticated, router]);
 
   const handleDomainSelect = (domain: Domain) => {
     setSelectedDomain(domain);
@@ -40,128 +36,88 @@ export default function DashboardPage() {
     setDetailsDomainId(null);
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
-      </div>
-    );
-  }
+  if (!user) return null;
 
-  if (!user) {
-    return null;
-  }
+  const planName = user.profile.subscription_plan?.name || 'Free';
+  const remaining = user.usage_summary?.remaining_books ?? 0;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center space-x-3">
-              <img 
-                src="/logo-icon.svg" 
-                alt="BookGen-AI Logo" 
-                className="h-8 w-8 text-primary-600"
-              />
-              <h1 className="text-2xl font-bold text-primary-600">BookGen-AI</h1>
-            </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-gray-700">{user.email}</span>
-              <Button onClick={logout} variant="outline" size="sm">
-                Logout
-              </Button>
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8 space-y-12">
-        {/* Welcome Section */}
-        <div className="bg-white rounded-lg shadow p-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
-            Welcome, {user.full_name || user.email}! 🎉
-          </h2>
-          <p className="text-gray-600 mb-6">
-            Your AI-powered book generation platform is ready. Choose a domain below to start creating!
-          </p>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-primary-50 rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-primary-900 mb-2">
-                Books Generated
-              </h3>
-              <p className="text-3xl font-bold text-primary-600">
-                {user.profile.total_books_generated}
-              </p>
-            </div>
-
-            <div className="bg-green-50 rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-green-900 mb-2">
-                Words Written
-              </h3>
-              <p className="text-3xl font-bold text-green-600">
-                {user.profile.total_words_written.toLocaleString()}
-              </p>
-            </div>
-
-            <div className="bg-blue-50 rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-blue-900 mb-2">
-                Subscription
-              </h3>
-              <p className="text-3xl font-bold text-blue-600 capitalize">
-                {user.profile.subscription_tier}
-              </p>
-            </div>
+    <DashboardLayout>
+      <div className="space-y-10 animate-fade-in">
+        {/* Welcome & Highlights */}
+        <section>
+          <div className="mb-6">
+            <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
+              Welcome back, {user.first_name || 'Author'}! 👋
+            </h2>
+            <p className="text-slate-500 dark:text-slate-400">
+              Here is what is happening with your writing projects today.
+            </p>
           </div>
 
-          {!user.email_verified && (
-            <div className="mt-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-              <p className="text-yellow-800">
-                ⚠️ Please verify your email address to access all features.
-              </p>
-            </div>
-          )}
-        </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <StatCard
+              label="Books Created"
+              value={user.profile.total_books_generated}
+              icon={BookCopy}
+              color="indigo"
+              trend={{ value: 12, isPositive: true }}
+            />
+            <StatCard
+              label="Words Written"
+              value={user.profile.total_words_written.toLocaleString()}
+              icon={FileText}
+              color="emerald"
+            />
+            <StatCard
+              label="Credits (Remaining)"
+              value={remaining}
+              icon={Zap}
+              color="amber"
+            />
+            <StatCard
+              label="Account Shield"
+              value={planName}
+              icon={ShieldCheck}
+              color="rose"
+            />
+          </div>
+        </section>
 
-        {/* Domains Section */}
-        <div className="bg-white rounded-lg shadow p-8">
-          <DomainsGrid 
+        {/* Verification Alert */}
+        {!user.email_verified && (
+          <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 rounded-3xl p-6 flex items-start space-x-4 shadow-sm">
+            <div className="bg-amber-100 dark:bg-amber-900/40 p-2 rounded-xl">
+              <AlertCircle className="w-6 h-6 text-amber-600 dark:text-amber-400" />
+            </div>
+            <div>
+              <h4 className="font-bold text-amber-900 dark:text-amber-300">Email Verification Required</h4>
+              <p className="text-sm text-amber-700 dark:text-amber-400/80 mb-3">
+                Please verify your email address to unlock unlimited book exports and premium sharing features.
+              </p>
+              <button className="text-sm font-bold text-amber-900 dark:text-amber-300 hover:underline">
+                Resend Verification Email →
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Domains Explorer */}
+        <section className="bg-white dark:bg-slate-800/50 rounded-[2.5rem] p-10 shadow-sm border border-slate-100 dark:border-slate-800">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+            <div>
+              <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-1">Explore Writing Domains</h3>
+              <p className="text-slate-500 dark:text-slate-400">Choose a specialized niche to start your next masterpiece.</p>
+            </div>
+          </div>
+
+          <DomainsGrid
             onDomainSelect={handleDomainSelect}
             onViewDetails={handleViewDetails}
             selectedDomainId={selectedDomain?.id}
             showOverview={true}
           />
-          
-          {/* Quick Actions */}
-          {selectedDomain && (
-            <div className="mt-8 p-6 bg-primary-50 rounded-lg">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className="text-2xl">{selectedDomain.icon}</div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-primary-900">
-                      Ready to create in {selectedDomain.name}?
-                    </h3>
-                    <p className="text-primary-700">
-                      {selectedDomain.description}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex space-x-3">
-                  <Button 
-                    variant="outline" 
-                    onClick={() => handleViewDetails(selectedDomain)}
-                  >
-                    View Details
-                  </Button>
-                  <Button>
-                    Start Creating Book
-                  </Button>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
+        </section>
       </div>
 
       {/* Domain Details Modal */}
@@ -174,6 +130,6 @@ export default function DashboardPage() {
           />
         )}
       </Modal>
-    </div>
+    </DashboardLayout>
   );
 }

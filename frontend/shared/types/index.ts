@@ -13,20 +13,42 @@ export interface User {
   first_name: string;
   last_name: string;
   full_name: string;
+  is_staff: boolean;
   email_verified: boolean;
   is_active: boolean;
   date_joined: string;
   profile: UserProfile;
+  usage_summary?: UsageSummary;
+}
+
+export interface SubscriptionPlan {
+  id: number;
+  name: string;
+  slug: string;
+  price: string;
+  book_limit_per_month: number;
+  features: Record<string, any>;
+}
+
+export interface UsageSummary {
+  plan_name: string;
+  book_limit: number;
+  current_usage: number;
+  remaining_books: number;
+  usage_reset_date: string;
 }
 
 export interface UserProfile {
   avatar_seed: string;
   avatar_initials: string;
-  subscription_tier: 'free' | 'pro' | 'enterprise';
+  subscription_plan: SubscriptionPlan | null;
+  subscription_status: string;
   total_books_generated: number;
   total_words_written: number;
   total_edit_actions: number;
   total_time_spent_minutes: number;
+  current_month_book_count: number;
+  usage_reset_date: string;
   last_active_at: string;
   features_used: Record<string, number>;
   theme: 'light' | 'dark';
@@ -176,12 +198,14 @@ export interface DomainAudiencesResponse {
 export interface Book {
   id: string;
   title: string;
-  domain: string;
-  niche: string;
-  audience: string;
-  status: 'generating' | 'completed' | 'failed';
+  domain_id: string;
+  niche_id?: string;
+  summary?: string;
+  status: 'pending' | 'processing' | 'completed' | 'failed';
   created_at: string;
   updated_at: string;
+  completed_at?: string;
+  error?: string;
 }
 
 // ============================================

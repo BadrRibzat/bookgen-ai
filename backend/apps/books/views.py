@@ -34,7 +34,7 @@ class BookHistoryView(APIView):
             
             return Response({
                 'success': True,
-                'books': books,
+                'results': books,
                 'pagination': {
                     'page': page,
                     'per_page': per_page,

@@ -129,9 +129,18 @@ class SubscriptionPlan(models.Model):
     Subscription tiers for the SaaS platform.
     Defines limits and features for different levels.
     """
+    BILLING_CYCLE_CHOICES = [
+        ('monthly', 'Monthly'),
+        ('quarterly', 'Quarterly'),
+        ('annual', 'Annual'),
+        ('forever', 'Forever'),
+    ]
+    
     name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(max_length=50, unique=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    billing_cycle = models.CharField(max_length=20, choices=BILLING_CYCLE_CHOICES, default='monthly')
+    duration_days = models.IntegerField(default=30)
     book_limit_per_month = models.IntegerField(default=5)
     features = models.JSONField(default=dict, blank=True)
     is_active = models.BooleanField(default=True)

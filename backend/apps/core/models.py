@@ -57,7 +57,7 @@ class DomainModel(BaseModel):
         self.description = description
         self.icon = icon
         self.is_active = is_active
-        self.subscription_tiers = subscription_tiers or ['personal', 'creator', 'professional', 'entrepreneur', 'enterprise']
+        self.subscription_tiers = subscription_tiers or ['personal', 'creator', 'enterprise']
     
     def validate(self):
         """Validate domain data"""
@@ -67,7 +67,7 @@ class DomainModel(BaseModel):
         if not self.description or len(self.description.strip()) < 10:
             raise ValueError("Domain description must be at least 10 characters long")
         
-        valid_tiers = ['personal', 'creator', 'professional', 'entrepreneur', 'enterprise']
+        valid_tiers = ['personal', 'creator', 'enterprise']
         for tier in self.subscription_tiers:
             if tier not in valid_tiers:
                 raise ValueError(f"Invalid subscription tier: {tier}")

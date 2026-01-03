@@ -36,6 +36,16 @@ export async function login(credentials: LoginCredentials): Promise<AuthResponse
   }
 }
 
+export async function adminLogin(credentials: LoginCredentials): Promise<AuthResponse> {
+  try {
+    const { data } = await apiClient.post<AuthResponse>('/auth/admin-login/', credentials);
+    storeTokens(data.tokens);
+    return data;
+  } catch (error) {
+    throw buildError(error);
+  }
+}
+
 export async function register(payload: RegisterData): Promise<AuthResponse> {
   try {
     const { data } = await apiClient.post<AuthResponse>('/auth/register/', payload);

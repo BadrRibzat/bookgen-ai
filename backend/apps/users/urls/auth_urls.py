@@ -12,6 +12,7 @@ from ..views import (
     ResendVerificationView,
     PasswordResetRequestView,
     PasswordResetConfirmView,
+    AdminLoginView,
 )
 
 app_name = 'auth'
@@ -20,6 +21,7 @@ urlpatterns = [
     # Registration & Login
     path('register/', RegisterView.as_view(), name='register'),
     path('login/', LoginView.as_view(), name='login'),
+    path('admin-login/', AdminLoginView.as_view(), name='admin_login'),
     path('logout/', LogoutView.as_view(), name='logout'),
     
     # Token refresh

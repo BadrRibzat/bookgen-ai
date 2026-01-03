@@ -19,6 +19,7 @@ import type {
 } from '@/shared/types';
 import {
   login as loginRequest,
+  adminLogin as adminLoginRequest,
   register as registerRequest,
   logout as logoutRequest,
   resendVerification as resendVerificationRequest,
@@ -51,6 +52,7 @@ interface AuthContextValue {
   isAuthenticated: boolean;
   analytics: UserAnalytics | null;
   login: (credentials: LoginCredentials) => Promise<void>;
+  adminLogin: (credentials: LoginCredentials) => Promise<void>;
   register: (payload: RegisterData) => Promise<void>;
   logout: () => Promise<void>;
   refreshProfile: () => Promise<void>;
@@ -129,6 +131,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(response.user);
         setAnalytics(null);
         router.push('/dashboard');
+      } catch (err) {
+        handleError(err);
+        throw err;
+      }
+    },
+    [handleError, router]
+  );
+
+  const adminLogin = useCallback(
+    async (credentials: LoginCredentials) => {
+      handleError(null);
+      try {
+        const response = await adminLoginRequest(credentials);
+        setUser(response.user);
+        setAnalytics(null);
+        router.push('/management-secure');
       } catch (err) {
         handleError(err);
         throw err;
@@ -241,6 +259,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isAuthenticated: Boolean(user),
       analytics,
       login,
+      adminLogin,
       register,
       logout,
       refreshProfile,
@@ -256,6 +275,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       error,
       loading,
       login,
+      adminLogin,
       logout,
       refreshProfile,
       register,

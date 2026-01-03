@@ -4,6 +4,7 @@ import { apiClient, extractErrorMessage } from '@/lib/api/client';
 export interface UpdateUserProfilePayload {
   first_name?: string;
   last_name?: string;
+  email?: string;
   theme?: 'light' | 'dark';
   email_notifications?: boolean;
   marketing_emails?: boolean;
@@ -64,6 +65,24 @@ export async function getBooksHistory(page = 1): Promise<BooksHistoryResponse> {
     const { data } = await apiClient.get<BooksHistoryResponse>('/users/books-history/', {
       params: { page },
     });
+    return data;
+  } catch (error) {
+    throw buildError(error);
+  }
+}
+
+export async function getSubscriptionPlans() {
+  try {
+    const { data } = await apiClient.get<{ success: boolean; plans: any[] }>('/users/plans/');
+    return data.plans;
+  } catch (error) {
+    throw buildError(error);
+  }
+}
+
+export async function deleteAccount() {
+  try {
+    const { data } = await apiClient.delete<{ success: boolean; message: string }>('/users/profile/');
     return data;
   } catch (error) {
     throw buildError(error);

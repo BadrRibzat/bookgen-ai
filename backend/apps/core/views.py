@@ -28,14 +28,16 @@ def list_domains(request):
         # Get user's subscription tier (default to personal for anonymous)
         user_tier = 'personal'
         if request.user.is_authenticated and hasattr(request.user, 'profile'):
-            user_tier = request.user.profile.subscription_tier
+            # Get plan name from ForeignKey
+            plan_name = request.user.profile.subscription_plan.name.lower() if request.user.profile.subscription_plan else 'free'
+            
             # Map frontend subscription tiers to domain subscription tiers
             tier_mapping = {
                 'free': 'personal',
                 'pro': 'creator', 
                 'enterprise': 'enterprise'
             }
-            user_tier = tier_mapping.get(user_tier, user_tier)
+            user_tier = tier_mapping.get(plan_name, plan_name)
         
         # Generate cache key
         cache_key = f"domains_{user_tier}"
@@ -251,7 +253,18 @@ def get_user_accessible_domains(request):
     """
     try:
         user = request.user
-        user_tier = user.profile.subscription_tier if hasattr(user, 'profile') else 'personal'
+        if hasattr(user, 'profile') and user.profile.subscription_plan:
+            user_tier = user.profile.subscription_plan.name.lower()
+        else:
+            user_tier = 'free'
+        
+        # Map to domain tier
+        tier_mapping = {
+            'free': 'personal',
+            'pro': 'creator', 
+            'enterprise': 'enterprise'
+        }
+        user_tier = tier_mapping.get(user_tier, user_tier)
         
         cache_key = f"user_{user.id}_domains"
         cached_data = cache.get(cache_key)
@@ -271,10 +284,15 @@ def get_user_accessible_domains(request):
             
             enriched_domains.append({
                 **domain,
+                'id': domain_id,
                 'niches_count': len(niches),
                 'audiences_count': len(audiences),
-                'niches_sample': niches[:3],  # Sample for overview
-                'audiences_sample': audiences[:3]  # Sample for overview
+                'niches_sample': [
+                    {**niche, 'id': str(niche['_id'])} for niche in niches[:3]
+                ],
+                'audiences_sample': [
+                    {**audience, 'id': str(audience['_id'])} for audience in audiences[:3]
+                ]
             })
         
         response_data = {

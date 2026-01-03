@@ -50,7 +50,7 @@ class RegisterView(APIView):
     """
     permission_classes = [permissions.AllowAny]
     
-    @method_decorator(ratelimit(key='ip', rate='3/h', method='POST'))
+    @method_decorator(ratelimit(key='ip', rate='10/h', method='POST'))  # Relaxed for dev
     def post(self, request):
         """Register a new user."""
         serializer = UserRegistrationSerializer(data=request.data)
@@ -58,8 +58,9 @@ class RegisterView(APIView):
         if serializer.is_valid():
             user = serializer.save()
             
-            # Send verification email
-            AuthService.send_verification_email(user)
+            # Auto-verify email for dev stabilization
+            user.email_verified = True
+            user.save()
             
             # Generate tokens
             tokens = get_tokens_for_user(user)
@@ -67,11 +68,11 @@ class RegisterView(APIView):
             # Serialize user data
             user_data = UserSerializer(user).data
             
-            logger.info(f"New user registered: {user.email}")
+            logger.info(f"New user registered and auto-verified: {user.email}")
             
             return Response({
                 'success': True,
-                'message': 'Registration successful. Please check your email to verify your account.',
+                'message': 'Registration successful. Account auto-verified for development.',
                 'user': user_data,
                 'tokens': tokens,
             }, status=status.HTTP_201_CREATED)
@@ -93,7 +94,7 @@ class LoginView(APIView):
     """
     permission_classes = [permissions.AllowAny]
     
-    @method_decorator(ratelimit(key='ip', rate='5/15m', method='POST'))
+    @method_decorator(ratelimit(key='ip', rate='20/15m', method='POST'))  # Relaxed for dev
     def post(self, request):
         """Authenticate user and return tokens."""
         serializer = UserLoginSerializer(data=request.data)
@@ -123,7 +124,56 @@ class LoginView(APIView):
             'success': False,
             'error': {
                 'code': 'AUTHENTICATION_FAILED',
-                'message': 'Invalid credentials.',
+                'message': 'Invalid credentials or missing security clearance.',
+                'details': serializer.errors,
+            }
+        }, status=status.HTTP_401_UNAUTHORIZED)
+
+
+class AdminLoginView(APIView):
+    """
+    Secure Login endpoint specifically for Staff/Admin.
+    POST /api/auth/admin-login/
+    """
+    permission_classes = [permissions.AllowAny]
+    
+    @method_decorator(ratelimit(key='ip', rate='10/15m', method='POST'))
+    def post(self, request):
+        """Authenticate staff user and return tokens."""
+        serializer = UserLoginSerializer(data=request.data)
+        
+        if serializer.is_valid():
+            user = serializer.validated_data['user']
+            
+            # Strict security check: Only staff allowed
+            if not user.is_staff:
+                logger.warning(f"Unauthorized admin login attempt by user: {user.email}")
+                return Response({
+                    'success': False,
+                    'error': {
+                        'code': 'PERMISSION_DENIED',
+                        'message': 'Access denied. Administrator clearance required.',
+                    }
+                }, status=status.HTTP_403_FORBIDDEN)
+            
+            # Generate tokens
+            tokens = get_tokens_for_user(user)
+            user_data = UserSerializer(user).data
+            
+            logger.info(f"Admin portal login by: {user.email}")
+            
+            return Response({
+                'success': True,
+                'message': 'Security clearance granted.',
+                'user': user_data,
+                'tokens': tokens,
+            }, status=status.HTTP_200_OK)
+        
+        return Response({
+            'success': False,
+            'error': {
+                'code': 'AUTHENTICATION_FAILED',
+                'message': 'Invalid admin credentials.',
                 'details': serializer.errors,
             }
         }, status=status.HTTP_401_UNAUTHORIZED)
@@ -316,7 +366,6 @@ class UserProfileView(APIView):
     permission_classes = [permissions.IsAuthenticated]
     
     @extend_schema(responses={200: UserSerializer})
-    @method_decorator(cache_page(60 * 5))  # Cache for 5 minutes
     def get(self, request):
         """Get authenticated user's profile."""
         serializer = UserSerializer(request.user)
@@ -404,6 +453,14 @@ class SubscriptionPlanListView(generics.ListAPIView):
     queryset = SubscriptionPlan.objects.filter(is_active=True)
     serializer_class = SubscriptionPlanSerializer
 
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response({
+            'success': True,
+            'plans': serializer.data
+        })
+
 
 class UserUsageView(APIView):
     """
@@ -445,7 +502,6 @@ class UserAnalyticsView(APIView):
     """
     permission_classes = [permissions.IsAuthenticated]
     
-    @method_decorator(cache_page(60 * 15))  # Cache for 15 minutes
     def get(self, request):
         """Get user's analytics summary."""
         summary = UserService.get_user_analytics_summary(request.user)

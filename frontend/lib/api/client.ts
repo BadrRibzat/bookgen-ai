@@ -17,7 +17,7 @@ interface RetriableRequestConfig extends AxiosRequestConfig {
 
 const apiClient: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
-  withCredentials: true,
+  withCredentials: false,
   headers: {
     'Content-Type': 'application/json',
     Accept: 'application/json',
@@ -135,8 +135,9 @@ apiClient.interceptors.response.use(
     }
 
     const originalRequest = config as RetriableRequestConfig;
+    const isAuthRequest = originalRequest.url?.includes('/auth/');
 
-    if (response.status === 401 && !originalRequest._retry) {
+    if (response.status === 401 && !originalRequest._retry && !isAuthRequest) {
       originalRequest._retry = true;
 
       const newAccessToken = await refreshAccessToken();
