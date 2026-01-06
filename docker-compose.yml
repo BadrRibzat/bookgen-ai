@@ -1,4 +1,5 @@
-version: '3.9'
+# Docker Compose file for BookGen-AI
+# Note: 'version' field is obsolete in modern Docker Compose
 
 services:
   # ============================================
@@ -173,7 +174,7 @@ services:
     env_file:
       - ./frontend/.env.local
     environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:8000
+      - NEXT_PUBLIC_API_URL=http://localhost:8000/api
       - NEXT_PUBLIC_APP_URL=http://localhost:3000
     volumes:
       - ./frontend:/app
