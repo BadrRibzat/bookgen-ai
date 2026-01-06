@@ -77,6 +77,14 @@
 - Comprehensive error handling
 - Production-ready logging and monitoring
 
+#### 🔐 **Admin Management Dashboard**
+- Secure admin-only access at `/management-secure`
+- User management and analytics
+- System-wide statistics and monitoring
+- Book management across all users
+- Subscription and revenue tracking
+
+
 ## 🧠 Fine-Tuned Model (November 2025)
 
 - **Kaggle GPU Training Pipeline**: distilgpt2 fine-tuned on 144,699 curated examples across 12 publishing domains in **6h 02m** (down from the original 2-year CPU estimate).
@@ -276,15 +284,36 @@ pip install -r requirements.txt
 ls data/training_sets/
 
 # Start the service
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8002
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8001
 ```
 
-### � Service URLs
+#### 4. Celery Services (Background Tasks)
+
+```bash
+# Open a new terminal for Celery Worker
+cd backend
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+celery -A config worker --loglevel=info
+
+# Optional: Open another terminal for Celery Beat (scheduled tasks)
+cd backend
+source venv/bin/activate
+celery -A config beat --loglevel=info
+```
+
+### 🌐 Service URLs
 - **Frontend**: http://localhost:3000
 - **Backend API**: http://localhost:8000
 - **API Documentation**: http://localhost:8000/api/docs/
-- **LLM Service**: http://localhost:8002
-- **LLM API Docs**: http://localhost:8002/docs
+- **LLM Service**: http://localhost:8001
+- **LLM API Docs**: http://localhost:8001/docs
+- **Redis**: localhost:6379
+- **Celery Worker**: Background service (no URL)
+- **Celery Beat**: Background service (no URL)
+
+> [!NOTE]
+> The LLM service runs on port **8001** (not 8002). Celery services run as background processes.
+
 
 ---
 
@@ -519,9 +548,13 @@ SUPPORTED_DOMAINS=cybersecurity,ai_ml,automation,healthtech,creator_economy,web3
 
 ### Frontend Environment (.env.local)
 ```bash
-NEXT_PUBLIC_API_URL=http://localhost:8000
+NEXT_PUBLIC_API_URL=http://localhost:8000/api
 NEXT_PUBLIC_LLM_SERVICE_URL=http://localhost:8002
 ```
+
+> [!IMPORTANT]
+> The `NEXT_PUBLIC_API_URL` must include the `/api` prefix to match the backend URL configuration.
+
 
 ---
 
@@ -599,134 +632,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Made with ❤️ by the BookGen-AI Team**
+**Made with ❤️ by Badr Ribzat**
 
-*Last updated: November 4, 2025*
- # � BookGen-AI
+*Last updated: January 6, 2026*
 
- ![BookGen-AI logo](frontend/public/favicon.svg)
-
- > **AI-Powered SaaS Book Generation Platform**
- > Transform your ideas into professionally formatted books with the power of artificial intelligence.
-
- [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
- [![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://www.python.org/)
- [![Django](https://img.shields.io/badge/Django-5.0+-green.svg)](https://www.djangoproject.com/)
- [![Next.js](https://img.shields.io/badge/Next.js-14+-black.svg)](https://nextjs.org/)
- [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue.svg)](https://www.typescriptlang.org/)
-
- ---
-
- ## 🌟 Features
-
- ### Current Implementation (Phase 1 & 2)
- - ✅ Secure Authentication (JWT + email verification)
- - ✅ User Profiles with analytics
- - ✅ Multi-step Book Generation wizard
- - ✅ FastAPI LLM service (extensible mock implementation)
- - ✅ Production-ready PDF generation pipeline
-
- ### Coming Soon
- - 🔄 Rich book editing UI
- - 🤖 Custom LLM fine-tuning
- - 🎨 AI cover design
- - 📄 In-browser PDF preview
- - 💳 Payment/subscription integration
-
- ---
-
- ## 🏗️ Technical Architecture
-
- This repository is a monorepo with three main components:
-
- - Backend: Django + DRF, Celery, MongoDB
- - Frontend: Next.js (App Router) + TypeScript + Tailwind
- - LLM Service: FastAPI (mock LLM for content generation)
-
- Other infra: Redis (broker), Cloudinary (assets), Docker Compose for local development.
-
- ---
-
- ## 📁 Project Structure (high-level)
-
- The project tree below is a concise overview for quick orientation — browse the repo for full details.
-
- ```
- bookgen-ai/
- ├── backend/                    # Django REST API
- ├── frontend/                   # Next.js application
- ├── llm-service/                # FastAPI AI service
- ├── shared/                     # Shared TypeScript types
- ├── scripts/                    # Automation scripts (setup, seeds, tests)
- └── docker-compose.yml          # Development compose file
- ```
-
- ---
-
- ## 🚀 Quick Start
-
- Follow these steps for a fast local development setup (Docker recommended):
-
- ### Prerequisites
- - Docker & Docker Compose
- - Node 18+ and npm
- - Python 3.11+
- - Git
-
- ### Automated setup
- ```bash
- git clone https://github.com/yourusername/bookgen-ai.git
- cd bookgen-ai
- chmod +x scripts/setup.sh
- ./scripts/setup.sh
- docker-compose up -d
- ```
-
- Access:
- - Frontend: http://localhost:3000
- - Backend: http://localhost:8000
- - API docs: http://localhost:8000/api/docs/
-
- If you prefer manual setup, the original manual steps are preserved in the repository and the `scripts/` folder.
-
- ---
-
- ## 🧪 Testing
-
- Run all tests locally:
- ```bash
- ./scripts/run-tests.sh
- ```
-
- Backend unit tests (pytest) and frontend tests (Jest/Playwright) are available.
-
- ---
-
- ## 📊 Development Workflow
-
- 1. Create a feature branch: `git checkout -b feature/your-feature`
- 2. Implement & test
- 3. Commit with Conventional Commits
- 4. Push and open PR
-
- ---
-
- ## 🔐 Environment
-
- Use `.env.example` files as templates; do not commit secrets. Key env variables are documented in the backend and frontend directories.
-
- ---
-
- ## 🤝 Contributing
-
- We welcome contributions. Please follow the project’s branching and commit conventions. See the CONTRIBUTING.md (if added) for details.
-
- ---
-
- ## 📝 License
-
- MIT — see the `LICENSE` file.
-
- ---
-
- **Made with ❤ by the BookGen-AI Team**
