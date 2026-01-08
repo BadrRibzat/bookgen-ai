@@ -23,6 +23,9 @@ export default function HomePage() {
               </span>
             </div>
             <div className="flex items-center space-x-4">
+              <Link href="/subscriptions">
+                <Button variant="ghost">Pricing</Button>
+              </Link>
               <Link href="/auth/login">
                 <Button variant="ghost">Sign in</Button>
               </Link>

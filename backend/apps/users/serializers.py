@@ -170,6 +170,53 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
         return attrs
 
 
+class PasswordChangeSerializer(serializers.Serializer):
+    """Serializer for password change."""
+    
+    current_password = serializers.CharField(
+        required=True,
+        write_only=True,
+        style={'input_type': 'password'}
+    )
+    new_password = serializers.CharField(
+        required=True,
+        write_only=True,
+        style={'input_type': 'password'}
+    )
+    new_password_confirm = serializers.CharField(
+        required=True,
+        write_only=True,
+        style={'input_type': 'password'}
+    )
+    
+    def validate_new_password(self, value):
+        """Validate new password strength."""
+        try:
+            validate_password(value)
+        except DjangoValidationError as e:
+            raise serializers.ValidationError(list(e.messages))
+        
+        if len(value) < 8:
+            raise serializers.ValidationError("Password must be at least 8 characters long.")
+        
+        if not re.search(r'[A-Z]', value):
+            raise serializers.ValidationError("Password must contain at least one uppercase letter.")
+        
+        if not re.search(r'[a-z]', value):
+            raise serializers.ValidationError("Password must contain at least one lowercase letter.")
+        
+        if not re.search(r'[0-9]', value):
+            raise serializers.ValidationError("Password must contain at least one number.")
+        
+        return value
+    
+    def validate(self, attrs):
+        """Validate that new passwords match."""
+        if attrs['new_password'] != attrs['new_password_confirm']:
+            raise serializers.ValidationError({"new_password_confirm": "New passwords do not match."})
+        return attrs
+
+
 class EmailVerificationSerializer(serializers.Serializer):
     """Serializer for email verification."""
     

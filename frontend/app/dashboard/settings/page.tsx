@@ -3,12 +3,13 @@
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import { useAuth } from '@/lib/contexts/AuthContext';
-import { updateCurrentUser, getSubscriptionPlans, deleteAccount } from '@/lib/api/users';
+import { updateCurrentUser, getSubscriptionPlans, deleteAccount, changePassword } from '@/lib/api/users';
 import UsageMeter from '@/components/dashboard/UsageMeter';
 import {
     User,
     CreditCard,
     ShieldAlert,
+    Shield,
     Check,
     Loader2,
     Trash2,
@@ -29,6 +30,12 @@ const SettingsPage = () => {
         first_name: user?.first_name || '',
         last_name: user?.last_name || '',
         email: user?.email || '',
+    });
+
+    const [passwordData, setPasswordData] = useState({
+        current_password: '',
+        new_password: '',
+        new_password_confirm: '',
     });
 
     useEffect(() => {
@@ -68,6 +75,33 @@ const SettingsPage = () => {
             } catch (err: any) {
                 setError(err.message || 'Failed to delete account');
             }
+        }
+    };
+
+    const handleChangePassword = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+        setError('');
+        setSuccess('');
+        
+        if (passwordData.new_password !== passwordData.new_password_confirm) {
+            setError('New passwords do not match');
+            setLoading(false);
+            return;
+        }
+
+        try {
+            await changePassword(passwordData);
+            setSuccess('Password changed successfully!');
+            setPasswordData({
+                current_password: '',
+                new_password: '',
+                new_password_confirm: '',
+            });
+        } catch (err: any) {
+            setError(err.message || 'Failed to change password');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -143,6 +177,65 @@ const SettingsPage = () => {
                             </form>
                         </section>
 
+                        {/* Password Section */}
+                        <section className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 shadow-sm border border-slate-100 dark:border-slate-800">
+                            <div className="flex items-center space-x-3 mb-8">
+                                <div className="p-2 bg-amber-50 dark:bg-amber-900/30 rounded-xl">
+                                    <Shield className="text-amber-600 w-5 h-5" />
+                                </div>
+                                <h3 className="text-xl font-black text-slate-800 dark:text-white">Change Password</h3>
+                            </div>
+
+                            <form onSubmit={handleChangePassword} className="space-y-6">
+                                <div className="space-y-2">
+                                    <label className="text-xs font-black text-slate-500 uppercase tracking-widest pl-1">Current Password</label>
+                                    <input
+                                        type="password"
+                                        value={passwordData.current_password}
+                                        onChange={(e) => setPasswordData({ ...passwordData, current_password: e.target.value })}
+                                        className="w-full bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-amber-500 rounded-2xl px-5 py-3 font-bold text-slate-900 dark:text-white outline-none transition-all"
+                                        required
+                                    />
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="space-y-2">
+                                        <label className="text-xs font-black text-slate-500 uppercase tracking-widest pl-1">New Password</label>
+                                        <input
+                                            type="password"
+                                            value={passwordData.new_password}
+                                            onChange={(e) => setPasswordData({ ...passwordData, new_password: e.target.value })}
+                                            className="w-full bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-amber-500 rounded-2xl px-5 py-3 font-bold text-slate-900 dark:text-white outline-none transition-all"
+                                            required
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-xs font-black text-slate-500 uppercase tracking-widest pl-1">Confirm New Password</label>
+                                        <input
+                                            type="password"
+                                            value={passwordData.new_password_confirm}
+                                            onChange={(e) => setPasswordData({ ...passwordData, new_password_confirm: e.target.value })}
+                                            className="w-full bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-amber-500 rounded-2xl px-5 py-3 font-bold text-slate-900 dark:text-white outline-none transition-all"
+                                            required
+                                        />
+                                    </div>
+                                </div>
+
+                                {success && <Alert type="success" message={success} />}
+                                {error && <Alert type="error" message={error} />}
+
+                                <div className="pt-4">
+                                    <button
+                                        disabled={loading}
+                                        className="bg-amber-600 hover:bg-amber-700 text-white font-black px-8 py-3.5 rounded-2xl transition-all shadow-lg flex items-center space-x-2 active:scale-95 disabled:opacity-50"
+                                    >
+                                        {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Check className="w-5 h-5" />}
+                                        <span>Change Password</span>
+                                    </button>
+                                </div>
+                            </form>
+                        </section>
+
                         {/* Danger Zone */}
                         <section className="bg-rose-50/50 dark:bg-rose-950/10 rounded-[2.5rem] p-8 border border-rose-100 dark:border-rose-900/30">
                             <div className="flex items-center space-x-3 mb-6">
@@ -177,8 +270,12 @@ const SettingsPage = () => {
                             <div className="bg-slate-50 dark:bg-slate-800/50 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 mb-8 relative overflow-hidden group">
                                 <div className="relative z-10">
                                     <span className="text-xs font-black text-indigo-500 uppercase tracking-widest mb-1 block">Your tier</span>
-                                    <h4 className="text-3xl font-black text-slate-900 dark:text-white capitalize">{user.profile.subscription_plan?.name}</h4>
-                                    <p className="text-sm font-bold text-slate-400 mt-1">Billed monthly</p>
+                                    <h4 className="text-3xl font-black text-slate-900 dark:text-white capitalize">
+                                        {user.is_staff ? 'Admin (Unlimited)' : (user.profile.subscription_plan?.name || 'No Plan')}
+                                    </h4>
+                                    <p className="text-sm font-bold text-slate-400 mt-1">
+                                        {user.is_staff ? 'Full access' : 'Billed monthly'}
+                                    </p>
                                 </div>
                                 <Zap className="absolute -right-4 -bottom-4 w-24 h-24 text-indigo-500/10 group-hover:scale-110 transition-transform" />
                             </div>
@@ -186,28 +283,30 @@ const SettingsPage = () => {
                             <UsageMeter
                                 label="Monthly Book Credits"
                                 current={user.profile.current_month_book_count}
-                                total={user.profile.subscription_plan?.book_limit_per_month || 1}
+                                total={user.is_staff ? -1 : (user.profile.subscription_plan?.book_limit_per_month || 1)}
                             />
 
-                            <div className="mt-8 pt-8 border-t border-slate-100 dark:border-slate-800">
-                                <h5 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Available Upgrades</h5>
-                                <div className="space-y-3">
-                                    {plans && plans.length > 0 && plans.filter(p => p.id !== user.profile.subscription_plan?.id).map(p => (
-                                        <button
-                                            key={p.id}
-                                            className="w-full flex items-center justify-between p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors group"
-                                        >
-                                            <div className="text-left">
-                                                <p className="font-black text-slate-800 dark:text-white uppercase text-xs">{p.name}</p>
-                                                <p className="text-xs text-slate-400 font-bold">{p.book_limit_per_month} books / mo</p>
-                                            </div>
-                                            <div className="text-indigo-600 font-black text-sm group-hover:scale-110 transition-transform">
-                                                Upgrade →
-                                            </div>
-                                        </button>
-                                    ))}
+                            {!user.is_staff && (
+                                <div className="mt-8 pt-8 border-t border-slate-100 dark:border-slate-800">
+                                    <h5 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Available Upgrades</h5>
+                                    <div className="space-y-3">
+                                        {plans && plans.length > 0 && plans.filter(p => p.id !== user.profile.subscription_plan?.id).map(p => (
+                                            <button
+                                                key={p.id}
+                                                className="w-full flex items-center justify-between p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors group"
+                                            >
+                                                <div className="text-left">
+                                                    <p className="font-black text-slate-800 dark:text-white uppercase text-xs">{p.name}</p>
+                                                    <p className="text-xs text-slate-400 font-bold">{p.book_limit_per_month} books / mo</p>
+                                                </div>
+                                                <div className="text-indigo-600 font-black text-sm group-hover:scale-110 transition-transform">
+                                                    Upgrade →
+                                                </div>
+                                            </button>
+                                        ))}
+                                    </div>
                                 </div>
-                            </div>
+                            )}
                         </section>
                     </div>
                 </div>

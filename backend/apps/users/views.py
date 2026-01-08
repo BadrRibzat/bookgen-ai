@@ -23,6 +23,7 @@ from .serializers import (
     UserProfileUpdateSerializer,
     PasswordResetRequestSerializer,
     PasswordResetConfirmSerializer,
+    PasswordChangeSerializer,
     EmailVerificationSerializer,
     UserAnalyticsSummarySerializer,
     SubscriptionPlanSerializer,
@@ -444,6 +445,60 @@ class UserProfileView(APIView):
         }, status=status.HTTP_200_OK)
 
 
+class PasswordChangeView(APIView):
+    """
+    Password change endpoint.
+    POST /api/users/change-password/
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    
+    @extend_schema(
+        request=PasswordChangeSerializer,
+        responses={200: OpenApiTypes.OBJECT}
+    )
+    def post(self, request):
+        """Change user password."""
+        serializer = PasswordChangeSerializer(data=request.data)
+        
+        if not serializer.is_valid():
+            return Response({
+                'success': False,
+                'error': {
+                    'code': 'VALIDATION_ERROR',
+                    'message': 'Password change failed.',
+                    'details': serializer.errors,
+                }
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        user = request.user
+        current_password = serializer.validated_data['current_password']
+        new_password = serializer.validated_data['new_password']
+        
+        # Verify current password
+        if not user.check_password(current_password):
+            return Response({
+                'success': False,
+                'error': {
+                    'code': 'INVALID_PASSWORD',
+                    'message': 'Current password is incorrect.',
+                }
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Change password
+        user.set_password(new_password)
+        user.save()
+        
+        # Track password change event
+        UserService.track_user_event(user, 'password_changed')
+        
+        logger.info(f"Password changed for user: {user.email}")
+        
+        return Response({
+            'success': True,
+            'message': 'Password changed successfully.',
+        }, status=status.HTTP_200_OK)
+
+
 class SubscriptionPlanListView(generics.ListAPIView):
     """
     List available subscription plans.
@@ -476,18 +531,26 @@ class UserUsageView(APIView):
         profile = user.profile
         plan = profile.subscription_plan
         
-        limit = plan.book_limit_per_month if plan else 0
-        remaining = max(0, limit - profile.current_month_book_count)
-        
-        # In a real app, check if usage_reset_date has passed and reset count
-        
-        data = {
-            'plan_name': plan.name if plan else 'No Plan',
-            'book_limit': limit,
-            'current_usage': profile.current_month_book_count,
-            'remaining_books': remaining,
-            'usage_reset_date': profile.usage_reset_date,
-        }
+        # Admin users have unlimited access
+        if user.is_staff:
+            data = {
+                'plan_name': 'Admin (Unlimited)',
+                'book_limit': -1,  # Unlimited
+                'current_usage': profile.current_month_book_count,
+                'remaining_books': -1,  # Unlimited
+                'usage_reset_date': profile.usage_reset_date,
+            }
+        else:
+            limit = plan.book_limit_per_month if plan else 0
+            remaining = max(0, limit - profile.current_month_book_count) if limit > 0 else 0
+            
+            data = {
+                'plan_name': plan.name if plan else 'No Plan',
+                'book_limit': limit,
+                'current_usage': profile.current_month_book_count,
+                'remaining_books': remaining,
+                'usage_reset_date': profile.usage_reset_date,
+            }
         
         return Response({
             'success': True,

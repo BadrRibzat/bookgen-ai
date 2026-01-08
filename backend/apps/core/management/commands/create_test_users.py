@@ -5,7 +5,7 @@ Usage: python manage.py create_test_users
 
 from django.core.management.base import BaseCommand
 from django.db import transaction
-from apps.users.models import User
+from apps.users.models import User, SubscriptionPlan
 
 
 class Command(BaseCommand):
@@ -13,6 +13,24 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         self.stdout.write(self.style.SUCCESS('Creating test user accounts...'))
+        
+        # Get or create Personal plan for test users
+        try:
+            personal_plan = SubscriptionPlan.objects.get(slug='personal')
+        except SubscriptionPlan.DoesNotExist:
+            self.stdout.write(
+                self.style.WARNING('Personal subscription plan not found. Creating it...')
+            )
+            personal_plan = SubscriptionPlan.objects.create(
+                name='Personal (Wellness & Learning)',
+                slug='personal',
+                price=19.00,
+                billing_cycle='monthly',
+                duration_days=30,
+                book_limit_per_month=10,
+                features={'domains': ['Nutrition & Meditation', 'Kids & Parenting', 'Recipes & Cooking']},
+                is_active=True,
+            )
         
         test_users = [
             {
@@ -23,6 +41,7 @@ class Command(BaseCommand):
                 'is_staff': True,
                 'is_superuser': True,
                 'email_verified': True,
+                'subscription_plan': None,  # Admin gets no plan (unlimited)
             },
             {
                 'email': 'user@example.com',
@@ -30,6 +49,7 @@ class Command(BaseCommand):
                 'first_name': 'Test',
                 'last_name': 'User',
                 'email_verified': True,
+                'subscription_plan': personal_plan,
             },
             {
                 'email': 'newuser@example.com',
@@ -37,6 +57,7 @@ class Command(BaseCommand):
                 'first_name': 'New',
                 'last_name': 'User',
                 'email_verified': False,
+                'subscription_plan': personal_plan,
             },
         ]
         
@@ -44,6 +65,7 @@ class Command(BaseCommand):
             for user_data in test_users:
                 email = user_data.pop('email')
                 password = user_data.pop('password')
+                subscription_plan = user_data.pop('subscription_plan', None)
                 
                 # Check if user already exists
                 if User.objects.filter(email=email).exists():
@@ -59,9 +81,17 @@ class Command(BaseCommand):
                     **user_data
                 )
                 
-                self.stdout.write(
-                    self.style.SUCCESS(f'✓ Created user: {email}')
-                )
+                # Assign subscription plan if provided
+                if subscription_plan:
+                    user.profile.subscription_plan = subscription_plan
+                    user.profile.save()
+                    self.stdout.write(
+                        self.style.SUCCESS(f'✓ Created user: {email} (Plan: {subscription_plan.name})')
+                    )
+                else:
+                    self.stdout.write(
+                        self.style.SUCCESS(f'✓ Created user: {email}')
+                    )
         
         self.stdout.write(self.style.SUCCESS('\nTest accounts created successfully!'))
         self.stdout.write('Login credentials:')

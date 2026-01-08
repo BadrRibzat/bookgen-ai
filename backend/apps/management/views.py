@@ -51,6 +51,11 @@ class AdminBookListView(APIView):
         books = find_many(COLLECTIONS['BOOKS'], {}, limit=per_page, skip=skip, sort=[('created_at', -1)])
         total = count_documents(COLLECTIONS['BOOKS'], {})
         
+        # Map _id to id for frontend compatibility
+        for book in books:
+            if '_id' in book:
+                book['id'] = book.pop('_id')
+        
         return Response({
             'success': True,
             'books': books,

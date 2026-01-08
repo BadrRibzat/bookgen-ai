@@ -88,3 +88,19 @@ export async function deleteAccount() {
     throw buildError(error);
   }
 }
+
+export async function changePassword(payload: {
+  current_password: string;
+  new_password: string;
+  new_password_confirm: string;
+}) {
+  try {
+    const { data } = await apiClient.post<{ success: boolean; message: string }>(
+      '/users/change-password/',
+      payload
+    );
+    return data;
+  } catch (error) {
+    throw buildError(error);
+  }
+}

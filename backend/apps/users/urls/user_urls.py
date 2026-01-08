@@ -5,6 +5,7 @@ URL patterns for user profile endpoints.
 from django.urls import path
 from ..views import (
     UserProfileView,
+    PasswordChangeView,
     UserAnalyticsView,
     UserBooksHistoryView,
     SubscriptionPlanListView,
@@ -16,6 +17,9 @@ app_name = 'users'
 urlpatterns = [
     # User profile
     path('profile/', UserProfileView.as_view(), name='profile'),
+    
+    # Password change
+    path('change-password/', PasswordChangeView.as_view(), name='change_password'),
     
     # Analytics
     path('analytics/', UserAnalyticsView.as_view(), name='analytics'),

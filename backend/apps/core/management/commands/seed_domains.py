@@ -5,7 +5,7 @@ Usage: python manage.py seed_domains
 
 from django.core.management.base import BaseCommand
 from apps.core.services import DomainService, NicheService, AudienceService
-from apps.core.mongodb import count_documents, COLLECTIONS
+from apps.core.mongodb import count_documents, delete_many, COLLECTIONS
 
 
 class Command(BaseCommand):
@@ -22,6 +22,13 @@ class Command(BaseCommand):
             if confirm.lower() != 'yes':
                 self.stdout.write(self.style.WARNING('Seeding cancelled'))
                 return
+            else:
+                # Delete existing data
+                self.stdout.write('Clearing existing data...')
+                delete_many(COLLECTIONS['DOMAINS'], {})
+                delete_many(COLLECTIONS['NICHES'], {})
+                delete_many(COLLECTIONS['AUDIENCES'], {})
+                self.stdout.write(self.style.SUCCESS('  ✓ Cleared existing data'))
         
         # Seed Domains
         self.stdout.write('Creating domains...')
@@ -57,73 +64,73 @@ class Command(BaseCommand):
                 'name': 'Artificial Intelligence & Machine Learning',
                 'description': 'AI technologies, machine learning algorithms, and intelligent systems',
                 'icon': '🤖',
-                'subscription_tiers': ['creator', 'professional', 'entrepreneur', 'enterprise'],
+                'subscription_tiers': ['creator', 'enterprise'],
             },
             {
                 'name': 'Automation Workflows',
                 'description': 'Process automation, workflow optimization, and productivity tools',
                 'icon': '⚙️',
-                'subscription_tiers': ['professional', 'entrepreneur', 'enterprise'],
+                'subscription_tiers': ['creator', 'enterprise'],
             },
             {
                 'name': 'Health & Wellness Technology',
                 'description': 'Digital health solutions, wellness apps, and medical technology',
                 'icon': '🏥',
-                'subscription_tiers': ['professional', 'entrepreneur', 'enterprise'],
+                'subscription_tiers': ['creator', 'enterprise'],
             },
             {
                 'name': 'Cyber-security',
                 'description': 'Information security, data protection, and threat prevention',
                 'icon': '🔐',
-                'subscription_tiers': ['professional', 'entrepreneur', 'enterprise'],
+                'subscription_tiers': ['creator', 'enterprise'],
             },
             {
                 'name': 'Creator Economy & Digital Content',
                 'description': 'Content creation, digital media, and creator monetization',
                 'icon': '🎬',
-                'subscription_tiers': ['creator', 'entrepreneur', 'enterprise'],
+                'subscription_tiers': ['creator', 'enterprise'],
             },
             {
                 'name': 'Web3 & Blockchain',
                 'description': 'Decentralized technologies, cryptocurrencies, and blockchain applications',
                 'icon': '⛓️',
-                'subscription_tiers': ['entrepreneur', 'enterprise'],
+                'subscription_tiers': ['enterprise'],
             },
             {
                 'name': 'E-commerce & Retail Tech',
                 'description': 'Online retail, shopping technology, and digital commerce',
                 'icon': '🛒',
-                'subscription_tiers': ['entrepreneur', 'enterprise'],
+                'subscription_tiers': ['enterprise'],
             },
             {
                 'name': 'Data Analytics & Business Intelligence',
                 'description': 'Data analysis, business insights, and analytics tools',
                 'icon': '📊',
-                'subscription_tiers': ['professional', 'entrepreneur', 'enterprise'],
+                'subscription_tiers': ['creator', 'enterprise'],
             },
             {
                 'name': 'Gaming & Interactive Entertainment',
                 'description': 'Video games, interactive media, and entertainment technology',
                 'icon': '🎮',
-                'subscription_tiers': ['entrepreneur', 'enterprise'],
+                'subscription_tiers': ['enterprise'],
             },
             {
                 'name': 'Kids & Parenting',
                 'description': 'Children education, parenting guides, and family content',
                 'icon': '👨‍👩‍👧‍👦',
-                'subscription_tiers': ['personal', 'creator', 'entrepreneur', 'enterprise'],
+                'subscription_tiers': ['personal', 'creator', 'enterprise'],
             },
             {
                 'name': 'Nutrition & Meditation',
                 'description': 'Health nutrition, mindfulness, and wellness practices',
                 'icon': '🧘',
-                'subscription_tiers': ['personal', 'entrepreneur', 'enterprise'],
+                'subscription_tiers': ['personal', 'enterprise'],
             },
             {
                 'name': 'Recipes & Cooking',
                 'description': 'Culinary recipes, cooking techniques, and food preparation',
                 'icon': '👨‍🍳',
-                'subscription_tiers': ['personal', 'creator', 'entrepreneur', 'enterprise'],
+                'subscription_tiers': ['personal', 'creator', 'enterprise'],
             },
         ]
     

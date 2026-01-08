@@ -48,9 +48,22 @@
 - Extended user profiles with subscription tiers
 - User analytics and activity tracking
 - Profile customization and preferences
+- Password change and account management
+- **5-Tier Subscription System**: Personal, Creator, Professional, Entrepreneur, Enterprise
+- Usage tracking and limits enforcement
+- Admin unlimited access handling
 - Role-based access control
 
-#### 📖 **Intelligent Book Generation**
+#### � **Comprehensive Subscription System**
+- **5 Subscription Tiers**: Personal ($9.99), Creator ($19.99), Professional ($39.99), Entrepreneur ($79.99), Enterprise ($149.99)
+- **Usage Limits**: Books/month, pages/book, domains, storage
+- **Feature Access**: Basic to Enterprise features with progressive unlocks
+- **Public Pricing Page**: Visitor-accessible subscription comparison
+- **Usage Tracking**: Real-time monitoring with visual meters
+- **Admin Unlimited Access**: Bypass all limits for admin users
+- **Plan Management**: Easy upgrade/downgrade capabilities
+
+#### �📖 **Intelligent Book Generation**
 - Multi-step book creation wizard with progress tracking
 - Real-time form validation with Zod schemas
 - Genre-specific content templates

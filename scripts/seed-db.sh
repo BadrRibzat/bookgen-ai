@@ -21,6 +21,10 @@ source venv/bin/activate
 echo -e "${BLUE}==>${NC} Seeding domains, niches, and audiences..."
 python manage.py seed_domains
 
+# Create subscription plans
+echo -e "${BLUE}==>${NC} Creating subscription plans..."
+python manage.py create_subscription_plans
+
 # Create test users
 echo -e "${BLUE}==>${NC} Creating test user accounts..."
 python manage.py create_test_users

@@ -1,8 +1,6 @@
 #!/bin/bash
-source /home/badr/.local/share/mamba/etc/profile.d/mamba.sh
-mamba activate bookgen-ai
-
 cd backend
+source venv/bin/activate
 
 echo "Starting Backend on port 8000..."
 python manage.py migrate
