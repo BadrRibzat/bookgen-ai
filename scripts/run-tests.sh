@@ -27,7 +27,7 @@ echo -e "${BLUE}==>${NC} Running Backend Tests (pytest)..."
 cd backend
 source ../venv/bin/activate
 
-if pytest tests/ -v --cov=apps --cov-report=html --cov-report=term; then
+if pytest apps/users/tests/ apps/core/tests/ -v --cov=apps --cov-report=html --cov-report=term; then
     echo -e "${GREEN}✓${NC} Backend tests passed"
 else
     echo -e "${RED}✗${NC} Backend tests failed"
@@ -46,7 +46,7 @@ cd ..
 echo -e "${BLUE}==>${NC} Running Frontend Tests (Jest)..."
 cd frontend
 
-if npm test -- --coverage --watchAll=false; then
+if npm run test:coverage; then
     echo -e "${GREEN}✓${NC} Frontend tests passed"
 else
     echo -e "${RED}✗${NC} Frontend tests failed"
