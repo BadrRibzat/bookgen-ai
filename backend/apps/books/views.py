@@ -1,155 +1,220 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
-from .services import BookService
-from .tasks import generate_book_task
+from rest_framework.generics import ListAPIView, RetrieveAPIView
+from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiTypes
 import logging
 
+from .models import Domain, BookGenerationRequest, UserGenerationStats
+from .serializers import (
+    DomainSerializer, BookGenerationRequestListSerializer,
+    BookGenerationRequestDetailSerializer, BookGenerationRequestCreateSerializer,
+    UserGenerationStatsSerializer
+)
+from .services import BookService
+from .tasks import generate_book_task
+
 logger = logging.getLogger(__name__)
 
-class BookHistoryView(APIView):
+
+class DomainListView(ListAPIView):
     """
-    User's book generation history.
-    GET /api/books/history/
+    List available domains for book generation.
+    GET /api/books/domains/
+    """
+    queryset = Domain.objects.filter(is_active=True)
+    serializer_class = DomainSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
+class BookGenerationStatsView(APIView):
+    """
+    User's book generation statistics and limits.
+    GET /api/books/stats/
     """
     permission_classes = [permissions.IsAuthenticated]
 
-    @extend_schema(
-        parameters=[
-            OpenApiParameter("page", OpenApiTypes.INT, OpenApiParameter.QUERY),
-            OpenApiParameter("per_page", OpenApiTypes.INT, OpenApiParameter.QUERY),
-        ],
-        responses={200: OpenApiTypes.OBJECT}
-    )
+    @extend_schema(responses={200: UserGenerationStatsSerializer})
     def get(self, request):
-        """Get authenticated user's book history from MongoDB."""
-        try:
-            user_id = request.user.id
-            page = int(request.query_params.get('page', 1))
-            per_page = int(request.query_params.get('per_page', 20))
-            skip = (page - 1) * per_page
-            
-            books = BookService.get_user_books(user_id, limit=per_page, skip=skip)
-            
-            return Response({
-                'success': True,
-                'results': books,
-                'pagination': {
-                    'page': page,
-                    'per_page': per_page,
-                    'total': len(books), # This should be a count query for accuracy
-                }
-            }, status=status.HTTP_200_OK)
-        except Exception as e:
-            logger.error(f"Error fetching book history: {str(e)}")
-            return Response({
-                'success': False,
-                'error': {
-                    'code': 'FETCH_ERROR',
-                    'message': 'Failed to retrieve book history.'
-                }
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        """Get user's generation statistics"""
+        stats, created = UserGenerationStats.objects.get_or_create(user=request.user)
+        serializer = UserGenerationStatsSerializer(stats)
+        return Response(serializer.data)
 
 
-class BookDetailView(APIView):
+class BookGenerationRequestListView(ListAPIView):
     """
-    View, update or delete a specific book.
-    GET/DELETE /api/books/<id>/
+    List user's book generation requests.
+    GET /api/books/generation-requests/
     """
+    serializer_class = BookGenerationRequestListSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-    @extend_schema(responses={200: OpenApiTypes.OBJECT})
-    def get(self, request, book_id):
-        """Get specific book details including chapters."""
-        book = BookService.get_book_details(book_id, user_id=request.user.id)
-        if not book:
-            return Response({
-                'success': False,
-                'error': {
-                    'code': 'NOT_FOUND',
-                    'message': 'Book not found.'
-                }
-            }, status=status.HTTP_404_NOT_FOUND)
-            
-        return Response({
-            'success': True,
-            'book': book
-        }, status=status.HTTP_200_OK)
-
-    @extend_schema(responses={200: OpenApiTypes.OBJECT})
-    def delete(self, request, book_id):
-        """Delete a book."""
-        deleted_count = BookService.delete_book(book_id, request.user.id)
-        if not deleted_count:
-            return Response({
-                'success': False,
-                'error': {
-                    'code': 'NOT_FOUND',
-                    'message': 'Book not found or already deleted.'
-                }
-            }, status=status.HTTP_404_NOT_FOUND)
-            
-        return Response({
-            'success': True,
-            'message': 'Book deleted successfully.'
-        }, status=status.HTTP_200_OK)
+    def get_queryset(self):
+        return BookGenerationRequest.objects.filter(user=self.request.user)
 
 
-class BookGenerateView(APIView):
+class BookGenerationRequestDetailView(RetrieveAPIView):
     """
-    Trigger book generation.
+    Get details of a specific book generation request.
+    GET /api/books/generation-requests/<id>/
+    """
+    serializer_class = BookGenerationRequestDetailSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return BookGenerationRequest.objects.filter(user=self.request.user)
+
+
+class BookGenerationCreateView(APIView):
+    """
+    Create a new book generation request.
     POST /api/books/generate/
     """
     permission_classes = [permissions.IsAuthenticated]
 
     @extend_schema(
-        request=OpenApiTypes.OBJECT,
-        responses={202: OpenApiTypes.OBJECT}
+        request=BookGenerationRequestCreateSerializer,
+        responses={201: BookGenerationRequestDetailSerializer}
     )
     def post(self, request):
-        """Start the background generation process."""
-        user = request.user
-        profile = user.profile
-        plan = profile.subscription_plan
-        
-        # Check usage limits
-        limit = plan.book_limit_per_month if plan else 0
-        if profile.current_month_book_count >= limit:
+        """Create and start book generation"""
+        serializer = BookGenerationRequestCreateSerializer(
+            data=request.data,
+            context={'request': request}
+        )
+
+        if serializer.is_valid():
+            # Create the generation request
+            generation_request = serializer.save(user=request.user)
+
+            # Get or create user stats
+            stats, created = UserGenerationStats.objects.get_or_create(user=request.user)
+
+            # Check limits
+            if not stats.can_generate_book():
+                generation_request.delete()
+                return Response({
+                    'error': 'Monthly generation limit reached'
+                }, status=status.HTTP_403_FORBIDDEN)
+
+            # Increment usage
+            stats.increment_generation_count()
+
+            # Start the generation task
+            generate_book_task.delay(str(generation_request.id))
+
+            # Return the created request
+            response_serializer = BookGenerationRequestDetailSerializer(generation_request)
+            return Response(response_serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class BookPreviewView(APIView):
+    """
+    Preview a generated book.
+    GET /api/books/<generation_request_id>/preview/
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, generation_request_id):
+        """Get book preview from MongoDB"""
+        generation_request = get_object_or_404(
+            BookGenerationRequest,
+            id=generation_request_id,
+            user=request.user
+        )
+
+        if not generation_request.mongodb_book_id:
             return Response({
-                'success': False,
-                'error': {
-                    'code': 'LIMIT_REACHED',
-                    'message': f'You have reached your monthly limit of {limit} books. Please upgrade your plan.'
-                }
-            }, status=status.HTTP_403_FORBIDDEN)
-            
-        # Extract generation params
-        title = request.data.get('title')
-        domain_id = request.data.get('domain_id')
-        niche_id = request.data.get('niche_id')
-        
-        if not all([title, domain_id]):
+                'error': 'Book not yet generated'
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        # Get book content from MongoDB
+        book_data = BookService.get_book_details(generation_request.mongodb_book_id)
+        if not book_data:
             return Response({
-                'success': False,
-                'error': {
-                    'code': 'MISSING_FIELDS',
-                    'message': 'Title and domain_id are required.'
-                }
-            }, status=status.HTTP_400_BAD_REQUEST)
-            
-        # Create book entry (status: pending)
-        book_id = BookService.create_book(user.id, title, domain_id, niche_id)
-        
-        # Trigger Celery task
-        generate_book_task.delay(str(book_id), user.id)
-        
-        # Increment usage count
-        profile.current_month_book_count += 1
-        profile.save()
-        
+                'error': 'Book content not found'
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        # Mark as previewed
+        generation_request.is_previewed = True
+        generation_request.save()
+
         return Response({
-            'success': True,
-            'message': 'Book generation started.',
-            'book_id': book_id
-        }, status=status.HTTP_202_ACCEPTED)
+            'generation_request': BookGenerationRequestDetailSerializer(generation_request).data,
+            'book_content': book_data
+        })
+
+
+class BookDownloadView(APIView):
+    """
+    Download a generated book as PDF.
+    GET /api/books/<generation_request_id>/download/
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, generation_request_id):
+        """Download book PDF"""
+        generation_request = get_object_or_404(
+            BookGenerationRequest,
+            id=generation_request_id,
+            user=request.user,
+            status='completed'
+        )
+
+        if not generation_request.can_download:
+            return Response({
+                'error': 'Download not allowed for your subscription'
+            }, status=status.HTTP_403_FORBIDDEN)
+
+        if not generation_request.pdf_file:
+            return Response({
+                'error': 'PDF not yet generated'
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        # Mark as downloaded
+        generation_request.is_downloaded = True
+        generation_request.downloaded_at = timezone.now()
+        generation_request.save()
+
+        # Return file URL or serve file
+        return Response({
+            'download_url': request.build_absolute_uri(generation_request.pdf_file.url),
+            'filename': f"{generation_request.title}.pdf"
+        })
+
+
+class BookDeleteView(APIView):
+    """
+    Delete a book generation request and associated files.
+    DELETE /api/books/<generation_request_id>/
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def delete(self, request, generation_request_id):
+        """Delete book and clean up files"""
+        generation_request = get_object_or_404(
+            BookGenerationRequest,
+            id=generation_request_id,
+            user=request.user
+        )
+
+        # Delete associated files
+        if generation_request.pdf_file:
+            generation_request.pdf_file.delete()
+        if generation_request.cover_image:
+            generation_request.cover_image.delete()
+
+        # Delete MongoDB content if exists
+        if generation_request.mongodb_book_id:
+            BookService.delete_book(generation_request.mongodb_book_id, str(request.user.id))
+
+        # Delete the request
+        generation_request.delete()
+
+        return Response({
+            'message': 'Book deleted successfully'
+        }, status=status.HTTP_204_NO_CONTENT)
