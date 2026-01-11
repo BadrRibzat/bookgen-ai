@@ -38,7 +38,7 @@ export default function DashboardPage() {
 
   if (!user) return null;
 
-  const planName = user.profile.subscription_plan?.name || 'Free';
+  const planName = user.profile?.subscription_plan?.name || 'Free';
   const remaining = user.usage_summary?.remaining_books ?? 0;
 
   return (
@@ -58,14 +58,14 @@ export default function DashboardPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <StatCard
               label="Books Created"
-              value={user.profile.total_books_generated}
+              value={user.profile?.total_books_generated || 0}
               icon={BookCopy}
               color="indigo"
               trend={{ value: 12, isPositive: true }}
             />
             <StatCard
               label="Words Written"
-              value={user.profile.total_words_written.toLocaleString()}
+              value={(user.profile?.total_words_written || 0).toLocaleString()}
               icon={FileText}
               color="emerald"
             />

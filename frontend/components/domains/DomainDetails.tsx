@@ -126,7 +126,7 @@ export function DomainDetails({ domainId, onClose, isModal = true }: DomainDetai
                 {domain.is_active ? 'Active' : 'Inactive'}
               </span>
               <div className="flex space-x-1">
-                {domain.subscription_tiers.map((tier) => (
+                {domain.subscription_tiers?.map((tier) => (
                   <span
                     key={tier}
                     className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800"
@@ -184,7 +184,7 @@ export function DomainDetails({ domainId, onClose, isModal = true }: DomainDetai
                     {niche.is_active ? 'Active' : 'Inactive'}
                   </span>
                   <span className="text-xs text-gray-500">
-                    {new Date(niche.created_at).toLocaleDateString()}
+                    {niche.created_at ? new Date(niche.created_at).toLocaleDateString() : 'Unknown'}
                   </span>
                 </div>
               </div>
@@ -224,7 +224,7 @@ export function DomainDetails({ domainId, onClose, isModal = true }: DomainDetai
                     {audience.is_active ? 'Active' : 'Inactive'}
                   </span>
                   <span className="text-xs text-gray-500">
-                    {new Date(audience.created_at).toLocaleDateString()}
+                    {audience.created_at ? new Date(audience.created_at).toLocaleDateString() : 'Unknown'}
                   </span>
                 </div>
               </div>

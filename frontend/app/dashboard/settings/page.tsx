@@ -271,7 +271,7 @@ const SettingsPage = () => {
                                 <div className="relative z-10">
                                     <span className="text-xs font-black text-indigo-500 uppercase tracking-widest mb-1 block">Your tier</span>
                                     <h4 className="text-3xl font-black text-slate-900 dark:text-white capitalize">
-                                        {user.is_staff ? 'Admin (Unlimited)' : (user.profile.subscription_plan?.name || 'No Plan')}
+                                        {user.is_staff ? 'Admin (Unlimited)' : (user.profile?.subscription_plan?.name || 'No Plan')}
                                     </h4>
                                     <p className="text-sm font-bold text-slate-400 mt-1">
                                         {user.is_staff ? 'Full access' : 'Billed monthly'}
@@ -282,15 +282,15 @@ const SettingsPage = () => {
 
                             <UsageMeter
                                 label="Monthly Book Credits"
-                                current={user.profile.current_month_book_count}
-                                total={user.is_staff ? -1 : (user.profile.subscription_plan?.book_limit_per_month || 1)}
+                                current={user.profile?.current_month_book_count || 0}
+                                total={user.is_staff ? -1 : (user.profile?.subscription_plan?.book_limit_per_month || 1)}
                             />
 
                             {!user.is_staff && (
                                 <div className="mt-8 pt-8 border-t border-slate-100 dark:border-slate-800">
                                     <h5 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Available Upgrades</h5>
                                     <div className="space-y-3">
-                                        {plans && plans.length > 0 && plans.filter(p => p.id !== user.profile.subscription_plan?.id).map(p => (
+                                        {plans && plans.length > 0 && plans.filter(p => p.id !== user.profile?.subscription_plan?.id).map(p => (
                                             <button
                                                 key={p.id}
                                                 className="w-full flex items-center justify-between p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors group"

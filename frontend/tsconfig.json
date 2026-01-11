@@ -22,7 +22,8 @@
       "@/*": ["./*"],
       "@/components/*": ["./components/*"],
       "@/lib/*": ["./lib/*"],
-      "@/app/*": ["./app/*"]
+      "@/app/*": ["./app/*"],
+      "@/shared/*": ["../shared/*"]
     },
     "forceConsistentCasingInFileNames": true,
     "noUnusedLocals": true,

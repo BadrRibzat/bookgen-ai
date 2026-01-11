@@ -118,7 +118,7 @@ const AdminOverviewPage = () => {
                                         </div>
                                         <div>
                                             <p className="text-sm font-black text-slate-900 dark:text-white">{u.full_name || u.email}</p>
-                                            <p className="text-[10px] font-bold text-slate-400 uppercase">{format(new Date(u.date_joined), 'MMM dd, yyyy')}</p>
+                                            <p className="text-[10px] font-bold text-slate-400 uppercase">{u.date_joined ? format(new Date(u.date_joined), 'MMM dd, yyyy') : 'Unknown'}</p>
                                         </div>
                                     </div>
                                     <ArrowUpRight className="w-5 h-5 text-slate-300 group-hover:text-emerald-500 transition-colors" />

@@ -12,7 +12,6 @@ import {
     Building2,
     ArrowRight,
     Loader2,
-    CreditCard,
     Users,
     BookOpen,
     Shield,
@@ -97,7 +96,8 @@ const SubscriptionsPage = () => {
         return planColors[slug as keyof typeof planColors] || 'from-blue-500 to-indigo-600';
     };
 
-    const renderFeatureList = (features: SubscriptionPlan['features']) => {
+    const renderFeatureList = (plan: SubscriptionPlan) => {
+        const features = plan.features;
         const featureItems = [];
 
         if (features.domains) {
@@ -111,8 +111,8 @@ const SubscriptionsPage = () => {
             );
         }
 
-        if (features.book_limit_per_month) {
-            const limit = features.book_limit_per_month === -1 ? 'Unlimited' : features.book_limit_per_month;
+        if (plan.book_limit_per_month) {
+            const limit = plan.book_limit_per_month === -1 ? 'Unlimited' : plan.book_limit_per_month;
             featureItems.push(
                 <li key="books" className="flex items-start space-x-3">
                     <BookOpen className="text-green-500 w-5 h-5 mt-0.5 flex-shrink-0" />
@@ -287,7 +287,7 @@ const SubscriptionsPage = () => {
 
                                     {/* Features */}
                                     <ul className="space-y-4 mb-8">
-                                        {renderFeatureList(plan.features)}
+                                        {renderFeatureList(plan)}
                                     </ul>
 
                                     {/* CTA Button */}

@@ -132,7 +132,7 @@ const UserManagementPage = () => {
                                     </td>
                                     <td className="px-8 py-6">
                                         <div className="flex flex-col">
-                                            <span className="text-sm font-bold text-slate-800 dark:text-slate-200">{format(new Date(u.date_joined), 'MMM dd, yyyy')}</span>
+                                            <span className="text-sm font-bold text-slate-800 dark:text-slate-200">{u.date_joined ? format(new Date(u.date_joined), 'MMM dd, yyyy') : 'Unknown'}</span>
                                             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Deployment Date</span>
                                         </div>
                                     </td>
