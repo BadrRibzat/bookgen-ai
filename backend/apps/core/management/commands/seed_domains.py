@@ -79,7 +79,7 @@ class Command(BaseCommand):
                 'subscription_tiers': ['creator', 'enterprise'],
             },
             {
-                'name': 'Cyber-security',
+                'name': 'Cybersecurity',
                 'description': 'Information security, data protection, and threat prevention',
                 'icon': '🔐',
                 'subscription_tiers': ['creator', 'enterprise'],
@@ -172,14 +172,14 @@ class Command(BaseCommand):
             {'name': 'Biohacking and longevity tech', 'domain_id': domain_ids['Health & Wellness Technology']},
         ])
         
-        # Cyber-security
+        # Cybersecurity
         niches.extend([
-            {'name': 'Zero-trust security architecture', 'domain_id': domain_ids['Cyber-security']},
-            {'name': 'Identity and access management', 'domain_id': domain_ids['Cyber-security']},
-            {'name': 'Cloud security solutions', 'domain_id': domain_ids['Cyber-security']},
-            {'name': 'Ransomware protection', 'domain_id': domain_ids['Cyber-security']},
-            {'name': 'Privacy-focused tools', 'domain_id': domain_ids['Cyber-security']},
-            {'name': 'Security awareness training platforms', 'domain_id': domain_ids['Cyber-security']},
+            {'name': 'Zero-trust security architecture', 'domain_id': domain_ids['Cybersecurity']},
+            {'name': 'Identity and access management', 'domain_id': domain_ids['Cybersecurity']},
+            {'name': 'Cloud security solutions', 'domain_id': domain_ids['Cybersecurity']},
+            {'name': 'Ransomware protection', 'domain_id': domain_ids['Cybersecurity']},
+            {'name': 'Privacy-focused tools', 'domain_id': domain_ids['Cybersecurity']},
+            {'name': 'Security awareness training platforms', 'domain_id': domain_ids['Cybersecurity']},
         ])
         
         # Creator Economy & Digital Content
@@ -295,13 +295,13 @@ class Command(BaseCommand):
             {'name': 'Students (health science / tech)', 'domain_id': domain_ids['Health & Wellness Technology']},
         ])
         
-        # Cyber-security audiences
+        # Cybersecurity audiences
         audiences.extend([
-            {'name': 'IT & Security Professionals', 'domain_id': domain_ids['Cyber-security']},
-            {'name': 'Business Executives (risk management)', 'domain_id': domain_ids['Cyber-security']},
-            {'name': 'Entrepreneurs (SMB protection)', 'domain_id': domain_ids['Cyber-security']},
-            {'name': 'Students (learning cybersecurity)', 'domain_id': domain_ids['Cyber-security']},
-            {'name': 'General Public (privacy education)', 'domain_id': domain_ids['Cyber-security']},
+            {'name': 'IT & Security Professionals', 'domain_id': domain_ids['Cybersecurity']},
+            {'name': 'Business Executives (risk management)', 'domain_id': domain_ids['Cybersecurity']},
+            {'name': 'Entrepreneurs (SMB protection)', 'domain_id': domain_ids['Cybersecurity']},
+            {'name': 'Students (learning cybersecurity)', 'domain_id': domain_ids['Cybersecurity']},
+            {'name': 'General Public (privacy education)', 'domain_id': domain_ids['Cybersecurity']},
         ])
         
         # Creator Economy & Digital Content audiences

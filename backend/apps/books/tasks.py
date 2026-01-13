@@ -23,14 +23,31 @@ def generate_book_task(generation_request_id):
         generation_request.save()
 
         # 2. Generate content using LLM service
-        prompt = f"Write a comprehensive book about '{generation_request.title}' in the {generation_request.domain.name} domain."
+        prompt = f"Write a comprehensive book about '{generation_request.title}' in the {generation_request.domain_name} domain."
         if generation_request.custom_prompt:
             prompt += f" Additional requirements: {generation_request.custom_prompt}"
 
+        # Map domain name to LLM domain id
+        domain_mapping = {
+            'Cybersecurity': 'cybersecurity',
+            'Artificial Intelligence & Machine Learning': 'ai_ml',
+            'Automation Workflows': 'automation',
+            'Health & Wellness Technology': 'healthtech',
+            'Creator Economy & Digital Content': 'creator_economy',
+            'Web3 & Blockchain': 'web3',
+            'E-commerce & Retail Tech': 'ecommerce',
+            'Data Analytics & Business Intelligence': 'data_analytics',
+            'Gaming & Interactive Entertainment': 'gaming',
+            'Kids & Parenting': 'kids_parenting',
+            'Nutrition & Wellness': 'nutrition',
+            'Recipes & Cooking': 'recipes'
+        }
+        llm_domain_id = domain_mapping.get(generation_request.domain_name, generation_request.domain_name.lower().replace(' ', '_').replace('&', '').replace('-', ''))
+
         llm_response = BookService.call_llm_service(
             prompt=prompt,
-            domain_id=generation_request.domain.name,
-            max_tokens=generation_request.target_word_count * 2  # Rough token estimate
+            domain_id=llm_domain_id,
+            max_length=min(generation_request.target_word_count * 2, 2048)  # LLM max is 2048
         )
 
         if not llm_response or 'generated_text' not in llm_response:
@@ -42,7 +59,7 @@ def generate_book_task(generation_request_id):
         book_doc = {
             'user_id': str(generation_request.user.id),
             'title': generation_request.title,
-            'domain_id': generation_request.domain.name,
+            'domain_id': generation_request.domain_name,
             'content': content,
             'word_count': len(content.split()),
             'status': 'completed',

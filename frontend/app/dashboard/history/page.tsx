@@ -15,8 +15,10 @@ import {
     ExternalLink
 } from 'lucide-react';
 import { format } from 'date-fns';
+import { useRouter } from 'next/navigation';
 
 const BookHistoryPage = () => {
+    const router = useRouter();
     const [books, setBooks] = useState<Book[]>([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
@@ -163,7 +165,8 @@ const BookHistoryPage = () => {
 
                                     <div className="mt-auto flex items-center justify-between gap-3">
                                         <button
-                                            className="flex-1 bg-slate-900 dark:bg-slate-800 text-white dark:text-slate-300 font-black py-3 rounded-2xl hover:bg-slate-800 dark:hover:bg-slate-700 transition-colors flex items-center justify-center space-x-2 text-sm shadow-xl"
+                                            onClick={() => router.push(`/dashboard/read/${book.id}`)}
+                                            className="flex-1 bg-slate-900 dark:bg-slate-800 text-white dark:text-slate-300 font-black py-3 rounded-2xl hover:bg-slate-800 dark:hover:bg-slate-700 transition-colors flex items-center justify-center space-x-2 text-sm shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
                                             disabled={book.status !== 'completed'}
                                         >
                                             <ExternalLink className="w-4 h-4" />

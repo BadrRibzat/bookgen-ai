@@ -36,7 +36,8 @@ class BookGenerationRequest(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    domain = models.ForeignKey(Domain, on_delete=models.CASCADE)
+    domain_id = models.CharField(max_length=24, default='')  # MongoDB ObjectId as string
+    domain_name = models.CharField(max_length=200, default='')  # Store domain name for display
 
     # MongoDB reference
     mongodb_book_id = models.CharField(max_length=24, blank=True)  # MongoDB ObjectId as string
@@ -44,6 +45,10 @@ class BookGenerationRequest(models.Model):
     title = models.CharField(max_length=500)
     custom_prompt = models.TextField(blank=True)
     target_word_count = models.PositiveIntegerField(default=50000)
+    cover_option = models.CharField(max_length=20, choices=[
+        ('auto', 'AI Generated'),
+        ('template', 'Template Based'),
+    ], default='auto')
 
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
 
@@ -103,6 +108,10 @@ class BookGenerationRequest(models.Model):
     @property
     def can_download(self):
         """Check if user can download this book based on subscription"""
+        # Admin users can download any completed book
+        if self.user.is_staff or self.user.is_superuser:
+            return self.status == 'completed'
+            
         if not self.user.profile.subscription_plan:
             return False
         return self.user.profile.subscription_plan.book_limit_per_month > 0 and self.status == 'completed'
@@ -126,10 +135,14 @@ class UserGenerationStats(models.Model):
 
     def can_generate_book(self):
         """Check if user can generate another book this month"""
-        if not self.user.subscription_plan:
+        # Admin users have unlimited generation
+        if self.user.is_staff or self.user.is_superuser:
+            return True
+            
+        if not hasattr(self.user, 'profile') or not self.user.profile.subscription_plan:
             return False
 
-        plan = self.user.subscription_plan
+        plan = self.user.profile.subscription_plan
         return self.books_generated_this_month < plan.monthly_book_limit
 
     def increment_generation_count(self):

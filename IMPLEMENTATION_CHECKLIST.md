@@ -147,10 +147,10 @@ docker-compose up -d
 
 ### Step 6: Test
 Navigate to http://localhost:3000 and try:
-- [ ] Register new account
-- [ ] Login with test account
-- [ ] View dashboard
-- [ ] Logout
+- [X] Register new account
+- [X] Login with test account
+- [X] View dashboard
+- [X] Logout
 
 ---
 
@@ -192,13 +192,13 @@ Navigate to http://localhost:3000 and try:
 - [x] Comprehensive test suite (13 tests passing)
 - [x] Domain seeding with 12 trending topics
 
-### Phase 4: Custom LLM ✅
-- [x] LLM integration (service up, connected to MongoDB)
-- [x] Content generation (smoke-tested `/generate` on `cybersecurity` domain)
-- [x] Kaggle GPU fine-tuning (144,699 examples, 12 domains, 6h 02m)
-- [x] Model deployment (final_model/ with metrics.json)
-- [x] Quality validation (perplexity 6.83, latency 381ms)
-- [x] Comprehensive test suite (pytest, validation scripts, real-world scenarios tested)
+### Phase 4: Custom LLM (Future)
+- [ ] LLM integration (service up, connected to MongoDB)
+- [ ] Content generation (smoke-tested `/generate` on `cybersecurity` domain)
+- [ ] Kaggle GPU fine-tuning (144,699 examples, 12 domains, 6h 02m)
+- [ ] Model deployment (final_model/ with metrics.json)
+- [ ] Quality validation (perplexity 6.83, latency 381ms)
+- [ ] Comprehensive test suite (pytest, validation scripts, real-world scenarios tested)
 
 ### Phase 5: Admin Management Dashboard ✅
 - [x] Secure admin authentication

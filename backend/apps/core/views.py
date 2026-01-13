@@ -253,7 +253,11 @@ def get_user_accessible_domains(request):
     """
     try:
         user = request.user
-        if hasattr(user, 'profile') and user.profile.subscription_plan:
+        
+        # Admin users get access to all domains
+        if user.is_staff or user.is_superuser:
+            user_tier = 'enterprise'  # Highest tier for admins
+        elif hasattr(user, 'profile') and user.profile.subscription_plan:
             user_tier = user.profile.subscription_plan.name.lower()
         else:
             user_tier = 'free'

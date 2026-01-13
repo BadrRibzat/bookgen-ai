@@ -28,6 +28,7 @@ const GenerationWizardPage = () => {
     const [title, setTitle] = useState('');
     const [selectedDomain, setSelectedDomain] = useState<Domain | null>(null);
     const [selectedNiche, setSelectedNiche] = useState<Niche | null>(null);
+    const [selectedCover, setSelectedCover] = useState<string>('auto');
     const [status, setStatus] = useState<'idle' | 'generating' | 'success' | 'error'>('idle');
     const [error, setError] = useState('');
 
@@ -75,7 +76,9 @@ const GenerationWizardPage = () => {
             const result = await generateBook({
                 title,
                 domain_id: selectedDomain.id,
-                niche_id: selectedNiche?.id
+                niche_id: selectedNiche?.id,
+                cover_option: selectedCover,
+                target_word_count: 50000 // Default word count
             });
 
             if (result.success) {
@@ -93,7 +96,7 @@ const GenerationWizardPage = () => {
         }
     };
 
-    const progressPercentage = (step / 3) * 100;
+    const progressPercentage = (step / 4) * 100;
 
     return (
         <DashboardLayout>
@@ -108,7 +111,7 @@ const GenerationWizardPage = () => {
                             <span>Create New Masterpiece</span>
                         </h2>
                         <div className="text-sm font-bold text-slate-500 uppercase tracking-widest">
-                            Step {step} of 3
+                            Step {step} of 4
                         </div>
                     </div>
                     <div className="h-2 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
@@ -213,15 +216,80 @@ const GenerationWizardPage = () => {
                                     onClick={handleNext}
                                     className="bg-indigo-600 hover:bg-indigo-700 text-white font-black px-10 py-4 rounded-2xl transition-all shadow-lg flex items-center space-x-2"
                                 >
-                                    <span>Final Step</span>
+                                    <span>Choose Cover</span>
                                     <ChevronRight className="w-5 h-5" />
                                 </button>
                             </div>
                         </div>
                     )}
 
-                    {/* Step 3: Review & Generate */}
+                    {/* Step 3: Cover Selection */}
                     {step === 3 && (
+                        <div className="space-y-8 animate-slide-up">
+                            <div>
+                                <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-2">Choose your cover style</h3>
+                                <p className="text-slate-500">Select how you'd like your book cover to be designed.</p>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                <button
+                                    onClick={() => setSelectedCover('auto')}
+                                    className={`p-8 rounded-3xl border-2 transition-all text-left ${selectedCover === 'auto'
+                                        ? 'border-indigo-500 bg-indigo-500/10 text-indigo-500'
+                                        : 'border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-500 hover:border-slate-300 dark:hover:border-slate-700'
+                                        }`}
+                                >
+                                    <div className="flex items-start space-x-4">
+                                        <div className={`w-16 h-16 rounded-2xl flex items-center justify-center ${selectedCover === 'auto' ? 'bg-indigo-500 text-white' : 'bg-slate-100 dark:bg-slate-800'}`}>
+                                            <Sparkles className="w-8 h-8" />
+                                        </div>
+                                        <div className="flex-1">
+                                            <span className="block font-bold text-xl mb-2">AI-Generated Cover</span>
+                                            <span className="block text-sm opacity-80 leading-relaxed">Let our AI create a stunning, professional cover design tailored to your book's content and theme.</span>
+                                        </div>
+                                    </div>
+                                </button>
+
+                                <button
+                                    onClick={() => setSelectedCover('template')}
+                                    className={`p-8 rounded-3xl border-2 transition-all text-left ${selectedCover === 'template'
+                                        ? 'border-indigo-500 bg-indigo-500/10 text-indigo-500'
+                                        : 'border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-500 hover:border-slate-300 dark:hover:border-slate-700'
+                                        }`}
+                                >
+                                    <div className="flex items-start space-x-4">
+                                        <div className={`w-16 h-16 rounded-2xl flex items-center justify-center ${selectedCover === 'template' ? 'bg-indigo-500 text-white' : 'bg-slate-100 dark:bg-slate-800'}`}>
+                                            <Wand2 className="w-8 h-8" />
+                                        </div>
+                                        <div className="flex-1">
+                                            <span className="block font-bold text-xl mb-2">Template-Based Cover</span>
+                                            <span className="block text-sm opacity-80 leading-relaxed">Choose from professionally designed templates and customize them to match your vision.</span>
+                                        </div>
+                                    </div>
+                                </button>
+                            </div>
+
+                            <div className="flex justify-between pt-6">
+                                <button
+                                    onClick={handleBack}
+                                    className="text-slate-500 font-bold px-6 py-4 rounded-2xl transition-all flex items-center space-x-2"
+                                >
+                                    <ChevronLeft className="w-5 h-5" />
+                                    <span>Back</span>
+                                </button>
+                                <button
+                                    onClick={handleNext}
+                                    className="bg-indigo-600 hover:bg-indigo-700 text-white font-black px-10 py-4 rounded-2xl transition-all shadow-lg flex items-center space-x-2"
+                                >
+                                    <span>Review & Generate</span>
+                                    <ChevronRight className="w-5 h-5" />
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Step 4: Review & Generate */}
+                    {step === 4 && (
                         <div className="space-y-10 animate-slide-up">
                             <div className="text-center space-y-4">
                                 <div className="w-20 h-20 bg-indigo-100 dark:bg-indigo-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -243,6 +311,12 @@ const GenerationWizardPage = () => {
                                 <div className="py-4 flex justify-between">
                                     <span className="text-slate-500 font-bold uppercase text-xs tracking-widest">Target Niche</span>
                                     <span className="text-slate-900 dark:text-white font-black">{selectedNiche?.name || 'Wide Domain'}</span>
+                                </div>
+                                <div className="py-4 flex justify-between">
+                                    <span className="text-slate-500 font-bold uppercase text-xs tracking-widest">Cover Style</span>
+                                    <span className="text-slate-900 dark:text-white font-black">
+                                        {selectedCover === 'auto' ? 'AI-Generated' : 'Template-Based'}
+                                    </span>
                                 </div>
                             </div>
 

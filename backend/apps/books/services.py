@@ -66,14 +66,14 @@ class BookService:
         return insert_one(COLLECTIONS['BOOKS'], book_doc)
 
     @staticmethod
-    def call_llm_service(prompt, domain_id, niche_id=None):
+    def call_llm_service(prompt, domain_id, niche_id=None, max_length=512):
         """Call the LLM service for text generation"""
         url = f"{settings.LLM_SERVICE_URL}/generate"
         payload = {
             'prompt': prompt,
             'domain_id': domain_id,
             'niche_id': niche_id,
-            'max_length': 512,
+            'max_length': max_length,
             'repetition_penalty': 1.1,
         }
         
